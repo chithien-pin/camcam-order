@@ -10,18 +10,20 @@
     <link rel="icon" href="./images/camcam-logo.png" sizes="32x32">
 </head>
 <body class="bg-orange-50">
-<div id="app" class="max-w-md mx-auto bg-white rounded-3xl shadow-lg overflow-hidden mt-10">
+<div id="app" class="max-w-md mx-auto bg-white rounded-3xl shadow-lg overflow-hidden sm:my-10 my-0">
     <div class="flex items-center justify-center p-4">
         <h1 class="text-xl text-orange-500 font-semibold">
             ĂN VẶT CAM CAM
         </h1>
     </div>
-    <div class="px-4">
+    <div class="px-4 max-h-[calc(100vh-60px-89px-72px)] sm:max-h-[calc(100vh-60px-89px-72px-5rem)] overflow-y-auto">
         <div v-for="(item, key) in menuList" class="flex items-center justify-between bg-gray-100 rounded-xl p-4 mb-4"
              :key="key">
-            <img alt="Nike Air Max 200" class="w-16 h-16 rounded-full" height="60"
-                 :src="item.imageUrl"
-                 width="60"/>
+            <div :class="`bg-[url(${item.imageUrl})]`"
+                 class="w-16 h-16 bg-cover bg-no-repeat bg-center rounded-full"
+                 height="60"
+                 width="60">
+            </div>
             <div class="flex-1 ml-4">
                 <h2 class="text-lg font-semibold">
                     {{item.name}}
@@ -32,47 +34,51 @@
             </div>
             <div class="flex items-center">
                 <button class="bg-gray-200 text-gray-600 rounded-full w-8 h-8 flex items-center justify-center"
-                @click="decreaseQuantity(key)">
+                        @click="decreaseQuantity(key)">
                     -
                 </button>
                 <span class="mx-2">{{item.quantity}}</span>
                 <button class="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
-                @click="increaseQuantity(key)">
+                        @click="increaseQuantity(key)">
                     +
                 </button>
             </div>
         </div>
     </div>
+    <!--    <div class="px-4 py-2 border-t border-gray-200">-->
+    <!--        <div class="flex justify-between text-gray-600 mb-2">-->
+    <!--            <span> Tạm tính: </span>-->
+    <!--            <span>{{formatMoney(subTotal)}}</span>-->
+    <!--        </div>-->
+    <!--    </div>-->
     <div class="px-4 py-2 border-t border-gray-200">
-        <div class="flex justify-between text-gray-600 mb-2">
-            <span> Tạm tính: </span>
-            <span>{{formatMoney(subTotal)}}</span>
-        </div>
-        <div class="flex justify-between text-gray-600 mb-2">
-            <span> Giảm giá: </span>
-            <span>{{formatMoney(discount)}}</span>
-        </div>
-        <div class="flex justify-between text-gray-600 mb-2">
-            <span>Ship</span>
-            <span>{{feeShip > 0 ? feeShip : 'Phờ ri'}}</span>
+        <div class="flex w-full text-gray-600 mb-2">
+            <div class="group relative w-full">
+                <label for="name"
+                       class="block w-full pb-1 text-sm font-medium text-gray-500 transition-all duration-200 ease-in-out group-focus-within:text-orange-400">Cho
+                    Cam xin tên:</label>
+                <input id="name" v-model="customerName" type="text"
+                       class="peer h-10 w-full rounded-md bg-gray-50 px-4 font-thin outline-none drop-shadow-sm transition-all duration-200 ease-in-out focus:bg-white focus:ring-2 focus:ring-orange-400"
+                       placeholder="VD: CAM CAM NÈ"/>
+            </div>
         </div>
     </div>
     <div class="px-4 py-4 bg-gray-100 flex items-center justify-between">
         <span class="text-2xl font-semibold">{{formatMoney(total)}}</span>
         <button class="bg-gray-500 text-white rounded-full px-6 py-2 flex items-center"
-                :class="{'bg-orange-500': total>0}">
+                :class="{'bg-orange-500': total>0}" @click="sendOrder()">
             <i class="fas fa-paper-plane mr-2"></i>
             Đặt đơn
         </button>
     </div>
 </div>
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<script async>
-    const {createApp, computed} = Vue
-
-    createApp({
+<script src="https://cdn.jsdelivr.net/npm/vue-toast-notification@3"></script>
+<link href="https://cdn.jsdelivr.net/npm/vue-toast-notification@3/dist/theme-sugar.css" rel="stylesheet">
+<script>
+    const {createApp} = window.Vue;
+    const app = createApp({
         setup() {
-
         },
         methods: {
             formatMoney(money) {
@@ -98,32 +104,137 @@
                 }
                 this.subTotal = subTotal;
                 this.total = subTotal + this.feeShip - this.discount;
+            },
+            notify(type, message) {
+                this.$toast.open({
+                    message: message || "Đặt đơn thành công! Chờ Cam check đơn nhak! 😽",
+                    type,
+                    position: 'top'
+                });
+            },
+            resetData() {
+                this.menuList = {
+                    1: {
+                        name: 'Bánh Tráng Muối Tôm Cay',
+                        imageUrl: './images/banhmuoi-min.png',
+                        price: 9000,
+                        quantity: 0
+                    },
+                    2: {
+                        name: 'Bánh Tráng Chấm',
+                        imageUrl: './images/banhcham-min.png',
+                        price: 15000,
+                        quantity: 0
+                    },
+                    3: {
+                        name: 'Bánh Tráng Sate Bò',
+                        imageUrl: './images/satebo-min.png',
+                        price: 20000,
+                        quantity: 0
+                    },
+                    4: {
+                        name: 'Bánh Tráng Sate Bò Mỡ Hành',
+                        imageUrl: './images/banhmohanh-min.jpg',
+                        price: 23000,
+                        quantity: 0
+                    },
+                    5: {
+                        name: 'Bánh Tráng Cuốn',
+                        imageUrl: './images/banhcuon-min.png',
+                        price: 35000,
+                        quantity: 0
+                    },
+                    6: {
+                        name: 'Bánh Gấu',
+                        imageUrl: './images/banhgau-min.JPG',
+                        price: 45000,
+                        quantity: 0
+                    }
+                }
+                this.total = 0
+                this.subTotal = 0
+                this.feeShip = 0
+                this.discount = 0
+                this.customerName = ''
+            },
+            sendOrder() {
+                if (this.customerName === '') {
+                    this.notify('error', 'Vui lòng nhập tên để Cam biết khách nhak!😽')
+                } else {
+                    const CHAT_ID = '-4747095084';
+                    const BOT_TOKEN = '7984088170:AAGcywp566fyAL4GOEyIL7dYtxiia3ZoZUg';
+
+                    const date = new Date().toLocaleDateString("vi-VN"); // Lấy ngày hiện tại
+                    const customerName = this.customerName;
+                    const items = [];
+                    const total = this.formatMoney(this.total);
+                    for (const id in this.menuList) {
+                        if (this.menuList[id].quantity > 0) {
+                            items.push(`${this.menuList[id].quantity} | ${this.menuList[id].name} | ${this.formatMoney(this.menuList[id].quantity * this.menuList[id].price)}`)
+                        }
+                    }
+                    // Định dạng tin nhắn
+                    const message = `🚀 *ĐƠN MỚI ${date}*\n`
+                        + `😽 *Khách:* ${customerName}\n`
+                        + `———————————\n`
+                        + items.map(item => `🛒 ${item}`).join("\n") + `\n`
+                        + `———————————\n`
+                        + `💰 *Tổng:* ${total}`;
+
+                    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                        method: "POST",
+                        headers: {"Content-Type": "application/json"},
+                        body: JSON.stringify({
+                            chat_id: CHAT_ID,
+                            text: message
+                        })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            this.notify('success', '')
+                            this.resetData()
+                            console.log(data)
+                        })
+                        .catch(error => console.error("Error:", error));
+                }
             }
         },
         data() {
             return {
                 menuList: {
                     1: {
-                        name: 'Bánh Tráng Trộn',
-                        imageUrl: 'https://storage.googleapis.com/a1aa/image/EL5cB-64TIOi2CtsaIZx-lIBqQdexrRXjXL6h38LSXI.jpg',
-                        price: 20000,
+                        name: 'Bánh Tráng Muối Tôm Cay',
+                        imageUrl: './images/banhmuoi-min.png',
+                        price: 9000,
                         quantity: 0
                     },
                     2: {
                         name: 'Bánh Tráng Chấm',
-                        imageUrl: 'https://storage.googleapis.com/a1aa/image/EL5cB-64TIOi2CtsaIZx-lIBqQdexrRXjXL6h38LSXI.jpg',
+                        imageUrl: './images/banhcham-min.png',
                         price: 15000,
                         quantity: 0
                     },
                     3: {
-                        name: 'Bánh Tráng Muối',
-                        imageUrl: 'https://storage.googleapis.com/a1aa/image/EL5cB-64TIOi2CtsaIZx-lIBqQdexrRXjXL6h38LSXI.jpg',
-                        price: 9000,
+                        name: 'Bánh Tráng Sate Bò',
+                        imageUrl: './images/satebo-min.png',
+                        price: 20000,
                         quantity: 0
                     },
                     4: {
+                        name: 'Bánh Tráng Sate Bò Mỡ Hành',
+                        imageUrl: './images/banhmohanh-min.jpg',
+                        price: 23000,
+                        quantity: 0
+                    },
+                    5: {
+                        name: 'Bánh Tráng Cuốn',
+                        imageUrl: './images/banhcuon-min.png',
+                        price: 35000,
+                        quantity: 0
+                    },
+                    6: {
                         name: 'Bánh Gấu',
-                        imageUrl: 'https://storage.googleapis.com/a1aa/image/EL5cB-64TIOi2CtsaIZx-lIBqQdexrRXjXL6h38LSXI.jpg',
+                        imageUrl: './images/banhgau-min.JPG',
                         price: 45000,
                         quantity: 0
                     }
@@ -132,9 +243,12 @@
                 subTotal: 0,
                 feeShip: 0,
                 discount: 0,
+                customerName: ''
             }
         }
-    }).mount('#app')
+    })
+    app.use(VueToast.ToastPlugin);
+    app.mount('#app')
 </script>
 </body>
 </html>
