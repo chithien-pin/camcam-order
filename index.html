@@ -161,6 +161,7 @@
                 if (this.customerName === '') {
                     this.notify('error', 'Vui lòng nhập tên để Cam biết khách nhak!😽')
                 } else {
+                    this.resetData()
                     const CHAT_ID = '-4747095084';
                     const BOT_TOKEN = '7984088170:AAGcywp566fyAL4GOEyIL7dYtxiia3ZoZUg';
 
@@ -192,10 +193,12 @@
                         .then(response => response.json())
                         .then(data => {
                             this.notify('success', '')
-                            this.resetData()
                             console.log(data)
                         })
-                        .catch(error => console.error("Error:", error));
+                        .catch(error => {
+                            this.notify('error', 'Lỗi rồi! Chờ xíuuu...')
+                            console.error("Error:", error)
+                        });
                 }
             }
         },
