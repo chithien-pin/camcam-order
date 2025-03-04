@@ -20,9 +20,7 @@
         <div v-for="(item, key) in menuList" class="flex items-center justify-between bg-gray-100 rounded-xl p-4 mb-4"
              :key="key">
             <div :class="`bg-[url(${item.imageUrl})]`"
-                 class="w-16 h-16 bg-cover bg-no-repeat bg-center rounded-full"
-                 height="60"
-                 width="60">
+                 class="w-16 h-16 bg-cover bg-no-repeat bg-center rounded-full">
             </div>
             <div class="flex-1 ml-4">
                 <h2 class="text-lg font-semibold">
@@ -31,6 +29,10 @@
                 <p class="text-orange-600">
                     {{formatMoney(item.price)}}
                 </p>
+                <label v-if="Object.keys(item).includes('spicy')"  class="inline-flex align-items-center gap-[5px] hover:cursor-pointer">
+                    <input type="checkbox" class="form-checkbox accent-orange-500/25 h-4 w-4 m-auto" v-model="item.spicy"/>
+                    <span>Cay nhiều</span>
+                </label>
             </div>
             <div class="flex items-center">
                 <button class="bg-gray-200 text-gray-600 rounded-full w-8 h-8 flex items-center justify-center"
@@ -130,13 +132,15 @@
                         name: 'Bánh Tráng Sate Bò',
                         imageUrl: './images/satebo-min.png',
                         price: 20000,
-                        quantity: 0
+                        quantity: 0,
+                        // spicy: false
                     },
                     4: {
                         name: 'Bánh Tráng Sate Bò Mỡ Hành',
                         imageUrl: './images/banhmohanh-min.jpg',
                         price: 23000,
-                        quantity: 0
+                        quantity: 0,
+                        // spicy: false
                     },
                     5: {
                         name: 'Bánh Gấu',
@@ -157,7 +161,7 @@
                     this.notify('error', 'Nhập tên để Cam biết ai nhak!😽')
                 } else {
                     this.loading = true
-                    const CHAT_ID = '-4747095084';
+                    const CHAT_ID = '-1002453504219';
                     const BOT_TOKEN = '7984088170:AAGcywp566fyAL4GOEyIL7dYtxiia3ZoZUg';
 
                     const date = new Date().toLocaleDateString("vi-VN"); // Lấy ngày hiện tại
@@ -166,7 +170,7 @@
                     const total = this.formatMoney(this.total);
                     for (const id in this.menuList) {
                         if (this.menuList[id].quantity > 0) {
-                            items.push(`${this.menuList[id].quantity} | ${this.menuList[id].name} | ${this.formatMoney(this.menuList[id].quantity * this.menuList[id].price)}`)
+                            items.push(`<b>${this.menuList[id].quantity}</b> | ${this.menuList[id].name}${this.menuList[id].spicy ? ' <u><i>(Cay nhiều)</i></u>':''} | ${this.formatMoney(this.menuList[id].quantity * this.menuList[id].price)}`)
                         }
                     }
                     // Định dạng tin nhắn
@@ -182,7 +186,8 @@
                         headers: {"Content-Type": "application/json"},
                         body: JSON.stringify({
                             chat_id: CHAT_ID,
-                            text: message
+                            text: message,
+                            "parse_mode": "HTML"
                         })
                     })
                         .then(response => response.json())
@@ -217,13 +222,15 @@
                         name: 'Bánh Tráng Sate Bò',
                         imageUrl: './images/satebo-min.png',
                         price: 20000,
-                        quantity: 0
+                        quantity: 0,
+                        // spicy: false
                     },
                     4: {
                         name: 'Bánh Tráng Sate Bò Mỡ Hành',
                         imageUrl: './images/banhmohanh-min.jpg',
                         price: 23000,
-                        quantity: 0
+                        quantity: 0,
+                        // spicy: false
                     },
                     5: {
                         name: 'Bánh Gấu',
