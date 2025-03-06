@@ -20,12 +20,13 @@
         </h1>
     </div>
     <div class="px-4 max-h-[calc(100vh-60px-89px-72px)] sm:max-h-[calc(100vh-60px-89px-72px-5rem)] overflow-y-auto">
-        <div v-for="(item, key) in menuList" class="flex items-center justify-between bg-gray-100 rounded-xl p-4 mb-4"
+        <div v-for="(item, key) in menuList" class="relative flex items-center justify-between bg-gray-100 rounded-xl p-4 mb-4"
              :key="key">
+            <img v-if="item.recommended" src="./images/recommended.png" alt="Recommended" class="absolute top-[0px] -left-[5px] w-[50px] h-[50px]">
             <div :class="`bg-[url(${item.imageUrl})]`"
                  class="w-16 h-16 bg-cover bg-no-repeat bg-center rounded-full">
             </div>
-            <div class="flex-1 ml-4">
+            <div class="flex-1 ml-4 ">
                 <h2 class="text-lg font-semibold">
                     {{item.name}}
                 </h2>
@@ -211,33 +212,69 @@
                         name: 'Bánh Tráng Muối Tôm Cay 🔥',
                         imageUrl: './images/banhmuoi-min.png',
                         price: 9000,
-                        quantity: 0
+                        quantity: 0,
+                        recommended: true
                     },
                     2: {
                         name: 'Bánh Tráng Chấm',
                         imageUrl: './images/banhcham-min.png',
                         price: 15000,
-                        quantity: 0
+                        quantity: 0,
+                        recommended: true
                     },
                     3: {
                         name: 'Bánh Tráng Sate Bò',
                         imageUrl: './images/satebo-min.png',
                         price: 20000,
                         quantity: 0,
-                        // spicy: false
+                        spicy: false,
+                        recommended: false
                     },
                     4: {
                         name: 'Bánh Tráng Sate Bò Mỡ Hành',
                         imageUrl: './images/banhmohanh-min.jpg',
                         price: 23000,
                         quantity: 0,
-                        // spicy: false
+                        spicy: false,
+                        recommended: false
                     },
                     5: {
+                        name: 'Bánh Tráng Cuốn',
+                        imageUrl: './images/banhcuon-min.png',
+                        price: 35000,
+                        quantity: 0,
+                        spicy: false,
+                        recommended: true
+                    },
+                    6: {
                         name: 'Bánh Gấu',
                         imageUrl: './images/banhgau-min.JPG',
                         price: 45000,
-                        quantity: 0
+                        quantity: 0,
+                        recommended: true
+                    },
+                    7: {
+                        name: 'Trứng cút (3 trứng)',
+                        imageUrl: './images/trungcut.png',
+                        price: 5000,
+                        quantity: 0,
+                        spicy: false,
+                        recommended: true
+                    },
+                    8: {
+                        name: 'Khô bò thiệt',
+                        imageUrl: './images/khobo.png',
+                        price: 5000,
+                        quantity: 0,
+                        spicy: false,
+                        recommended: false
+                    },
+                    9: {
+                        name: 'Mỡ hành',
+                        imageUrl: './images/mohanh.png',
+                        price: 5000,
+                        quantity: 0,
+                        recommended: false
                     }
                 },
                 total: 0,
