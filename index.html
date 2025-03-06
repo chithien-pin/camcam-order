@@ -6,8 +6,11 @@
         CAMCAM ORDER
     </title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
     <link rel="icon" href="./images/camcam-logo.png" sizes="32x32">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-toast-notification@3"></script>
+    <link href="https://cdn.jsdelivr.net/npm/vue-toast-notification@3/dist/theme-sugar.css" rel="stylesheet">
 </head>
 <body class="bg-orange-50">
 <div id="app" class="max-w-md mx-auto bg-white rounded-3xl shadow-lg overflow-hidden sm:my-10 my-0">
@@ -74,9 +77,7 @@
         </button>
     </div>
 </div>
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-toast-notification@3"></script>
-<link href="https://cdn.jsdelivr.net/npm/vue-toast-notification@3/dist/theme-sugar.css" rel="stylesheet">
+
 <script>
     const {createApp} = window.Vue;
     const app = createApp({
@@ -207,7 +208,7 @@
             return {
                 menuList: {
                     1: {
-                        name: 'Bánh Tráng Muối Tôm Cay',
+                        name: 'Bánh Tráng Muối Tôm Cay 🔥',
                         imageUrl: './images/banhmuoi-min.png',
                         price: 9000,
                         quantity: 0
