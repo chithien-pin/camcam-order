@@ -20,10 +20,12 @@
         </h1>
     </div>
     <div class="px-4 max-h-[calc(100vh-60px-89px-72px)] sm:max-h-[calc(100vh-60px-89px-72px-5rem)] overflow-y-auto">
-        <div v-for="(item, key) in menuList" class="relative flex items-center justify-between bg-gray-100 rounded-xl p-4 mb-4"
+        <div v-show="!loading" v-for="(item, key) in menuList"
+             class="relative flex items-center justify-between bg-gray-100 rounded-xl p-4 mb-4"
              :key="key">
-            <img v-if="item.recommended" src="./images/recommended.png" alt="Recommended" class="absolute top-[0px] -left-[5px] w-[50px] h-[50px]">
-            <div :class="`bg-[url(${item.imageUrl})]`"
+            <img v-if="item.recommended === true" src="./images/recommended.png" alt="Recommended"
+                 class="absolute top-[0px] -left-[5px] w-[50px] h-[50px]">
+            <div :class="`bg-[url(${item.thumbnail})]`"
                  class="w-16 h-16 bg-cover bg-no-repeat bg-center rounded-full">
             </div>
             <div class="flex-1 ml-4 ">
@@ -33,8 +35,10 @@
                 <p class="text-orange-600">
                     {{formatMoney(item.price)}}
                 </p>
-                <label v-if="Object.keys(item).includes('spicy')"  class="inline-flex align-items-center gap-[5px] hover:cursor-pointer">
-                    <input type="checkbox" class="form-checkbox accent-orange-500/25 h-4 w-4 m-auto" v-model="item.spicy"/>
+                <label v-if="item.spicy_opt === true"
+                       class="inline-flex align-items-center gap-[5px] hover:cursor-pointer">
+                    <input type="checkbox" class="form-checkbox accent-orange-500/25 h-4 w-4 m-auto"
+                           v-model="spicyOptions[item.id]"/>
                     <span>Cay nhiều</span>
                 </label>
             </div>
@@ -49,6 +53,9 @@
                     +
                 </button>
             </div>
+        </div>
+        <div v-show="loading || menuList.length === 0">
+            <img src="https://iili.io/3FZqYsR.png" alt="MENU CAMCAM removebg preview" border="0">
         </div>
     </div>
     <!--    <div class="px-4 py-2 border-t border-gray-200">-->
@@ -84,6 +91,9 @@
     const app = createApp({
         setup() {
         },
+        async created() {
+            await this.getMenuList()
+        },
         methods: {
             formatMoney(money) {
                 return new Intl.NumberFormat('vi-VN', {
@@ -117,46 +127,8 @@
                 });
             },
             resetData() {
-                this.menuList = {
-                    1: {
-                        name: 'Bánh Tráng Muối Tôm Cay',
-                        imageUrl: './images/banhmuoi-min.png',
-                        price: 9000,
-                        quantity: 0
-                    },
-                    2: {
-                        name: 'Bánh Tráng Chấm',
-                        imageUrl: './images/banhcham-min.png',
-                        price: 15000,
-                        quantity: 0
-                    },
-                    3: {
-                        name: 'Bánh Tráng Sate Bò',
-                        imageUrl: './images/satebo-min.png',
-                        price: 20000,
-                        quantity: 0,
-                        // spicy: false
-                    },
-                    4: {
-                        name: 'Bánh Tráng Sate Bò Mỡ Hành',
-                        imageUrl: './images/banhmohanh-min.jpg',
-                        price: 23000,
-                        quantity: 0,
-                        // spicy: false
-                    },
-                    5: {
-                        name: 'Bánh Gấu',
-                        imageUrl: './images/banhgau-min.JPG',
-                        price: 45000,
-                        quantity: 0
-                    }
-                }
-                this.total = 0
-                this.subTotal = 0
-                this.feeShip = 0
-                this.discount = 0
-                this.customerName = ''
-                this.loading = false
+                this.getMenuList()
+                this.loading = false;
             },
             sendOrder() {
                 if (this.customerName === '') {
@@ -170,124 +142,90 @@
                     const customerName = this.customerName;
                     const items = [];
                     const total = this.formatMoney(this.total);
-                    for (const id in this.menuList) {
-                        if (this.menuList[id].quantity > 0) {
-                            items.push(`<b>${this.menuList[id].quantity}</b> | ${this.menuList[id].name}${this.menuList[id].spicy ? ' <u><i>(Cay nhiều)</i></u>':''} | ${this.formatMoney(this.menuList[id].quantity * this.menuList[id].price)}`)
+                    this.menuList.forEach((item) => {
+                        if (item.quantity > 0) {
+                            items.push(`<b>${item.quantity}</b> | ${item.name}${this.spicyOptions[item.id] ? ' <u><i>(Cay nhiều)</i></u>' : ''} | ${this.formatMoney(item.quantity * item.price)}`)
                         }
-                    }
-                    // Định dạng tin nhắn
-                    const message = `🚀 ĐƠN MỚI ${date}\n`
-                        + `😽 Khách: ${customerName}\n`
-                        + `———————————\n`
-                        + items.map(item => `🛒 ${item}`).join("\n") + `\n`
-                        + `———————————\n`
-                        + `💰 *Tổng:* ${total}`;
-
-                    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                        method: "POST",
-                        headers: {"Content-Type": "application/json"},
-                        body: JSON.stringify({
-                            chat_id: CHAT_ID,
-                            text: message,
-                            "parse_mode": "HTML"
-                        })
                     })
-                        .then(response => response.json())
-                        .then(data => {
-                            this.resetData();
-                            this.notify('success', '')
-                            console.log(data)
+                    if (items.length > 0) {
+                        // Định dạng tin nhắn
+                        const message = `🚀 ĐƠN MỚI ${date}\n`
+                            + `😽 Khách: ${customerName}\n`
+                            + `———————————\n`
+                            + items.map(item => `🛒 ${item}`).join("\n") + `\n`
+                            + `———————————\n`
+                            + `💰 Tổng: <b>${total}</b>`;
+
+                        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                            method: "POST",
+                            headers: {"Content-Type": "application/json"},
+                            body: JSON.stringify({
+                                chat_id: CHAT_ID,
+                                text: message,
+                                "parse_mode": "HTML"
+                            })
                         })
-                        .catch(error => {
-                            this.notify('error', 'Lỗi rồi! Chờ xíuuu...')
-                            console.error("Error:", error)
-                        });
+                            .then(response => response.json())
+                            .then(data => {
+                                this.resetData();
+                                this.notify('success', '')
+                                console.log(data)
+                            })
+                            .catch(error => {
+                                this.notify('error', 'Lỗi rồi! Chờ xíuuu...')
+                                console.error("Error:", error)
+                            });
+                    } else {
+                        this.notify('error', 'Chọn sản phẩm đi bạn mình ơi!😽')
+                    }
                 }
+            },
+            getMenuList() {
+                this.menuList = []
+                this.loading = true
+
+                const sheetId = "1f9Y6_WFqxt6ZYKC_zsNXHI6t25pB0SBfTHyD6ph0_U0";
+                const apiKey = "AIzaSyCuxvzmaCbcCyieEXzkcOuZ0GBZ5aAIIhU";
+                const sheetName = "Sheet1";  // Change to your actual sheet name
+
+                fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}?key=${apiKey}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data)
+                        const dataFromSheet = this.convertToJSON(data?.values)
+                        dataFromSheet.forEach(item => {
+                            item.quantity = 0;
+                            if (item.spicy_opt === true) {
+                                this.spicyOptions[item.id] = false;
+                            }
+                            this.menuList.push(item);
+                        })
+                        this.loading = false;
+                    })
+                    .catch(error => {
+                        this.notify('error', 'Lỗi rồi! Chờ xíuuu...')
+                        console.error("Error:", error)
+                    });
+            },
+            convertToJSON(sheetData) {
+                const headers = sheetData[0]; // First row as keys
+                return sheetData.slice(1).map(row =>
+                    Object.fromEntries(headers.map((key, index) => [
+                        key, row[index] === "TRUE" ? true : row[index] === "FALSE" ? false : row[index]
+                    ]))
+                );
             }
         },
         data() {
             return {
-                menuList: {
-                    1: {
-                        name: 'Bánh Tráng Muối Tôm Cay 🔥',
-                        imageUrl: './images/banhmuoi-min.png',
-                        price: 9000,
-                        quantity: 0,
-                        recommended: true
-                    },
-                    2: {
-                        name: 'Bánh Tráng Chấm',
-                        imageUrl: './images/banhcham-min.png',
-                        price: 15000,
-                        quantity: 0,
-                        recommended: true
-                    },
-                    3: {
-                        name: 'Bánh Tráng Sate Bò',
-                        imageUrl: './images/satebo-min.png',
-                        price: 20000,
-                        quantity: 0,
-                        spicy: false,
-                        recommended: false
-                    },
-                    4: {
-                        name: 'Bánh Tráng Sate Bò Mỡ Hành',
-                        imageUrl: './images/banhmohanh-min.jpg',
-                        price: 23000,
-                        quantity: 0,
-                        spicy: false,
-                        recommended: false
-                    },
-                    5: {
-                        name: 'Bánh Tráng Cuốn',
-                        imageUrl: './images/banhcuon-min.png',
-                        price: 35000,
-                        quantity: 0,
-                        spicy: false,
-                        recommended: true
-                    },
-                    6: {
-                        name: 'Bánh Gấu',
-                        imageUrl: './images/banhgau-min.JPG',
-                        price: 45000,
-                        quantity: 0,
-                        recommended: true
-                    },
-                    7: {
-                        name: 'Trứng cút (3 trứng)',
-                        imageUrl: './images/trungcut.png',
-                        price: 5000,
-                        quantity: 0,
-                        recommended: true
-                    },
-                    8: {
-                        name: 'Khô bò thiệt',
-                        imageUrl: './images/khobo.png',
-                        price: 5000,
-                        quantity: 0,
-                        recommended: false
-                    },
-                    9: {
-                        name: 'Mỡ hành',
-                        imageUrl: './images/mohanh.png',
-                        price: 5000,
-                        quantity: 0,
-                        recommended: false
-                    },
-                    10: {
-                        name: 'Tắc (1 trái)',
-                        imageUrl: './images/tac.png',
-                        price: 1000,
-                        quantity: 0,
-                        recommended: false
-                    }
-                },
+                menuList: [],
                 total: 0,
                 subTotal: 0,
                 feeShip: 0,
                 discount: 0,
                 customerName: '',
-                loading: false
+                loading: false,
+                spicyOptions: {},
             }
         }
     })
