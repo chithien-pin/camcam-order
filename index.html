@@ -91,8 +91,10 @@
     const app = createApp({
         setup() {
         },
-        async created() {
-            await this.getMenuList()
+        created() {
+            setTimeout(async () => {
+                await this.getMenuList()
+            }, 1000)
         },
         methods: {
             formatMoney(money) {
@@ -183,10 +185,9 @@
             getMenuList() {
                 this.menuList = []
                 this.loading = true
-
-                const sheetId = "1f9Y6_WFqxt6ZYKC_zsNXHI6t25pB0SBfTHyD6ph0_U0";
+                const sheetId = "1ZBRf2GWkUbx7I6AK7I9hSgJ0iA5WXx0eFDByRPkWdqo";
                 const apiKey = "AIzaSyCuxvzmaCbcCyieEXzkcOuZ0GBZ5aAIIhU";
-                const sheetName = "Sheet1";  // Change to your actual sheet name
+                const sheetName = "MENU_ORDER";  // Change to your actual sheet name
 
                 fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}?key=${apiKey}`)
                     .then(response => response.json())
