@@ -11,6 +11,57 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue-toast-notification@3"></script>
     <link href="https://cdn.jsdelivr.net/npm/vue-toast-notification@3/dist/theme-sugar.css" rel="stylesheet">
+    <style>
+        .arrow {
+            position: absolute;
+            bottom: 130px;
+            left: 50%;
+            transform: rotate(0) translate(-50%, -50%);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            background: #ffddc4;
+            width: 70px;
+            height: 125px;
+            align-items: center;
+            justify-content: center;
+            opacity: .5;
+            border-radius: 40px;
+        }
+
+        .arrow span {
+            display: block;
+            width: 30px;
+            height: 30px;
+            border-bottom: 5px solid #ff7c20;
+            border-right: 5px solid #ff7c20;
+            transform: rotate(0);
+            margin: -10px;
+            animation: animate 2s infinite;
+        }
+
+        .arrow span:nth-child(2) {
+            animation-delay: -0.2s;
+        }
+
+        .arrow span:nth-child(3) {
+            animation-delay: -0.4s;
+        }
+
+        @keyframes animate {
+            0% {
+                opacity: 0;
+                transform: rotate(45deg) translate(-20px, -20px);
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: rotate(45deg) translate(20px, 20px);
+            }
+        }
+    </style>
 </head>
 <body class="bg-orange-50">
 <div id="app" class="max-w-md mx-auto bg-white rounded-3xl shadow-lg overflow-hidden sm:my-10 my-0">
@@ -57,13 +108,12 @@
         <div v-show="loading || menuList.length === 0">
             <img src="https://iili.io/3FZqYsR.png" alt="MENU CAMCAM removebg preview" border="0">
         </div>
+        <div v-show="isShowArrow" class="arrow">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
     </div>
-    <!--    <div class="px-4 py-2 border-t border-gray-200">-->
-    <!--        <div class="flex justify-between text-gray-600 mb-2">-->
-    <!--            <span> Tạm tính: </span>-->
-    <!--            <span>{{formatMoney(subTotal)}}</span>-->
-    <!--        </div>-->
-    <!--    </div>-->
     <div class="px-4 py-2 border-t border-gray-200">
         <div class="flex w-full text-gray-600 mb-2">
             <div class="group relative w-full">
@@ -202,6 +252,7 @@
                             this.menuList.push(item);
                         })
                         this.loading = false;
+                        this.showArrow()
                     })
                     .catch(error => {
                         this.notify('error', 'Lỗi rồi! Chờ xíuuu...')
@@ -215,6 +266,12 @@
                         key, row[index] === "TRUE" ? true : row[index] === "FALSE" ? false : row[index]
                     ]))
                 );
+            },
+            showArrow(){
+                this.isShowArrow = true
+                setTimeout(async () => {
+                    this.isShowArrow = false
+                }, 5000)
             }
         },
         data() {
@@ -226,6 +283,7 @@
                 discount: 0,
                 customerName: '',
                 loading: false,
+                isShowArrow: false,
                 spicyOptions: {},
             }
         }
