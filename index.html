@@ -71,7 +71,7 @@
         </h1>
     </div>
     <div class="px-4 max-h-[calc(100vh-60px-89px-72px)] sm:max-h-[calc(100vh-60px-89px-72px-5rem)] overflow-y-auto">
-        <div v-show="!loading" v-for="(item, key) in menuList"
+        <div v-show="!loading && item.is_show" v-for="(item, key) in menuList"
              class="relative flex items-center justify-between bg-gray-100 rounded-xl p-4 mb-4"
              :key="key">
             <img v-if="item.recommended === true" src="./images/recommended.png" alt="Recommended"
@@ -108,7 +108,7 @@
         <div v-show="loading || menuList.length === 0">
             <img src="https://iili.io/3FZqYsR.png" alt="MENU CAMCAM removebg preview" border="0">
         </div>
-        <div v-show="isShowArrow" class="arrow">
+        <div v-show="isShowArrow && !loading && menuList.length > 3" class="arrow">
             <span></span>
             <span></span>
             <span></span>
