@@ -1,0 +1,375 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>
+        CAMCAM ORDER
+    </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="./images/camcam-logo.png" sizes="32x32">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-toast-notification@3"></script>
+    <link href="https://cdn.jsdelivr.net/npm/vue-toast-notification@3/dist/theme-sugar.css" rel="stylesheet">
+    <style>
+        .arrow {
+            position: absolute;
+            bottom: 130px;
+            left: 50%;
+            transform: rotate(0) translate(-50%, -50%);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            background: #ffddc4;
+            width: 70px;
+            height: 125px;
+            align-items: center;
+            justify-content: center;
+            opacity: .5;
+            border-radius: 40px;
+        }
+
+        .arrow span {
+            display: block;
+            width: 30px;
+            height: 30px;
+            border-bottom: 5px solid #ff7c20;
+            border-right: 5px solid #ff7c20;
+            transform: rotate(0);
+            margin: -10px;
+            animation: animate 2s infinite;
+        }
+
+        .arrow span:nth-child(2) {
+            animation-delay: -0.2s;
+        }
+
+        .arrow span:nth-child(3) {
+            animation-delay: -0.4s;
+        }
+
+        @keyframes animate {
+            0% {
+                opacity: 0;
+                transform: rotate(45deg) translate(-20px, -20px);
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: rotate(45deg) translate(20px, 20px);
+            }
+        }
+    </style>
+</head>
+<body class="bg-orange-50">
+<div id="app" class="max-w-md mx-auto bg-white rounded-3xl shadow-lg overflow-hidden sm:my-10 my-0">
+    <div class="flex items-center justify-center p-4">
+        <h1 class="text-xl text-orange-500 font-semibold">
+            ĂN VẶT CAM CAM
+        </h1>
+    </div>
+    <div class="px-3 overflow-y-auto"
+         :class="checkPoint?`max-h-[calc(100vh-60px-89px-72px)] sm:max-h-[calc(100vh-60px-89px-72px-5rem)]`: `max-h-[calc(100vh-60px-171px-72px)] sm:max-h-[calc(100vh-60px-171px-72px-5rem)]`"
+    >
+        <div v-show="!loading && item.is_show" v-for="(item, key) in menuList"
+             class="relative flex items-center justify-between bg-gray-100 rounded-xl p-4 mb-4"
+             :key="key">
+            <img v-if="item.recommended === true" src="https://iili.io/3FLETOJ.png" alt="Recommended"
+                 class="absolute top-[0px] -left-[5px] w-[50px] h-[50px]">
+            <div :class="`bg-[url(${item.thumbnail})]`"
+                 class="w-16 h-16 bg-cover bg-no-repeat bg-center rounded-full">
+            </div>
+            <div class="flex-1 ml-4 ">
+                <h2 class="text-lg font-semibold">
+                    {{item.name}}
+                </h2>
+                <p class="text-orange-600">
+                    {{formatMoney(item.price)}}
+                </p>
+                <label v-if="item.spicy_opt === true"
+                       class="inline-flex align-items-center gap-[5px] hover:cursor-pointer">
+                    <input type="checkbox" class="form-checkbox accent-orange-500/25 h-4 w-4 m-auto"
+                           v-model="spicyOptions[item.id]"/>
+                    <span>Cay nhiều</span>
+                </label>
+            </div>
+            <div class="flex items-center">
+                <button class="bg-gray-200 text-gray-600 rounded-full w-8 h-8 flex items-center justify-center"
+                        @click="decreaseQuantity(key)">
+                    -
+                </button>
+                <span class="mx-2">{{item.quantity}}</span>
+                <button class="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
+                        @click="increaseQuantity(key)">
+                    +
+                </button>
+            </div>
+        </div>
+        <div v-show="loading || menuList.length === 0">
+            <img src="https://iili.io/3FZqYsR.png" alt="MENU CAMCAM removebg preview" border="0">
+        </div>
+        <div v-show="isShowArrow && !loading && menuList.length > 3" class="arrow">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+    <div v-if="checkPoint" class="p-2 border-t border-gray-200">
+        <div class="flex w-full text-gray-600 mb-2">
+            <div class="group relative w-full">
+                <label for="name"
+                       class="block w-full pb-1 text-sm font-medium text-gray-500 transition-all duration-200 ease-in-out group-focus-within:text-orange-400">Cho
+                    Cam xin tên:</label>
+                <input id="name" v-model="customerName" type="text"
+                       class="peer h-10 w-full rounded-md bg-gray-50 px-4 outline-none drop-shadow-sm transition-all duration-200 ease-in-out focus:bg-white focus:ring-2 focus:ring-orange-400"
+                       placeholder="VD: CAM CAM NÈ"/>
+            </div>
+        </div>
+    </div>
+    <div v-else class="p-3 border-t border-gray-200">
+        <div class="flex flex-col gap-[10px] w-full text-gray-600 mb-2">
+            <div class="group relative w-full">
+                <div class="flex gap-[10px]">
+                    <div class="groupa relative w-full">
+                        <label for="uname"
+                               class="block w-full pb-1 text-sm font-medium text-gray-500 transition-all duration-200 ease-in-out groupa-focus-within:text-orange-400">Cho
+                            Cam xin tên:</label>
+                        <input id="uname" v-model="customerName" type="text"
+                               class="peer h-10 w-full rounded-md bg-gray-50 px-4 outline-none drop-shadow-sm transition-all duration-200 ease-in-out focus:bg-white focus:ring-2 focus:ring-orange-400"
+                               placeholder="VD: CAM CAM NÈ"/>
+                    </div>
+                    <div class="group relative w-full">
+                        <label for="uphone"
+                               class="block w-full pb-1 text-sm font-medium text-gray-500 transition-all duration-200 ease-in-out group-focus-within:text-orange-400">Cho
+                            Cam xin phôn:</label>
+                        <input id="uphone" v-model="customerPhone" type="text"
+                               class="peer h-10 w-full rounded-md bg-gray-50 px-4 outline-none drop-shadow-sm transition-all duration-200 ease-in-out focus:bg-white focus:ring-2 focus:ring-orange-400"
+                               placeholder="VD: 0123456789"/>
+                    </div>
+                </div>
+            </div>
+            <div class="group relative w-full">
+                <label for="uaddress"
+                       class="block w-full pb-1 text-sm font-medium text-gray-500 transition-all duration-200 ease-in-out group-focus-within:text-orange-400">Cho
+                    Cam xin địa chỉ:</label>
+                <input id="uaddress" v-model="customerAddress" type="text"
+                       class="peer h-10 w-full rounded-md bg-gray-50 px-4 outline-none drop-shadow-sm transition-all duration-200 ease-in-out focus:bg-white focus:ring-2 focus:ring-orange-400"
+                       placeholder="VD: 123 Bình Tĩnh, Bình Thường, HCM"/>
+            </div>
+        </div>
+    </div>
+    <div class="px-4 py-4 bg-gray-100 flex items-center justify-between">
+        <span class="text-2xl font-semibold">{{formatMoney(total)}}</span>
+        <button class="bg-gray-500 text-white rounded-full px-6 py-2 flex items-center"
+                :class="{'bg-orange-500': total>0 && loading === false}" @click="sendOrder()">
+            <i class="fas fa-paper-plane mr-2"></i>
+            {{loading ? 'Đang gửi...' : 'Đặt đơn'}}
+        </button>
+    </div>
+</div>
+
+<script>
+    const {createApp} = window.Vue;
+    const app = createApp({
+        setup() {
+        },
+        data() {
+            return {
+                menuList: [],
+                total: 0,
+                subTotal: 0,
+                feeShip: 0,
+                discount: 0,
+                customerName: '',
+                customerPhone: '',
+                customerAddress: '',
+                loading: false,
+                isShowArrow: false,
+                spicyOptions: {},
+                infoData: {},
+                checkPoint: false,
+                checkPointString: 'f607e131b133f9ebe1cd51041afe7cf961b5440a040f0ac3a9586f8829711fd3'
+            }
+        },
+        async mounted() {
+            setTimeout(async () => {
+                await this.getMenuList()
+            }, 1000)
+            await this.getCheckPoint()
+        },
+        methods: {
+            formatMoney(money) {
+                return new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND'
+                }).format(money);
+            },
+            increaseQuantity(id) {
+                this.menuList[id].quantity++;
+                this.calculateTotal()
+            },
+            decreaseQuantity(id) {
+                if (this.menuList[id].quantity > 0) {
+                    this.menuList[id].quantity--;
+                    this.calculateTotal()
+                }
+            },
+            calculateTotal() {
+                let subTotal = 0;
+                for (const id in this.menuList) {
+                    subTotal += this.menuList[id].quantity * this.menuList[id].price;
+                }
+                this.subTotal = subTotal;
+                this.total = subTotal + this.feeShip - this.discount;
+            },
+            notify(type, message) {
+                this.$toast.open({
+                    message: message || "Đặt đơn thành công! Chờ Cam chút nhak! 😽",
+                    type,
+                    position: 'top'
+                });
+            },
+            resetData() {
+                this.getMenuList()
+                this.loading = false;
+            },
+            async sendOrder() {
+                if (this.customerName === '') {
+                    this.notify('error', 'Nhập tên để Cam biết ai nhak!😽')
+                } else {
+                    this.loading = true
+                    const CHAT_ID = '-1002453504219';
+                    const BOT_TOKEN = '7984088170:AAGcywp566fyAL4GOEyIL7dYtxiia3ZoZUg';
+
+                    const date = new Date().toLocaleDateString("vi-VN"); // Lấy ngày hiện tại
+                    const customerName = this.customerName;
+                    const items = [];
+                    const total = this.formatMoney(this.total);
+                    this.menuList.forEach((item) => {
+                        if (item.quantity > 0) {
+                            items.push(`<b>${item.quantity}</b> | ${item.name}${this.spicyOptions[item.id] ? ' <u><i>(Cay nhiều)</i></u>' : ''} | ${this.formatMoney(item.quantity * item.price)}`)
+                        }
+                    })
+                    if (items.length > 0) {
+                        // Định dạng tin nhắn
+                        const message = `🚀 ĐƠN MỚI ${date}\n`
+                            + `😽 Khách: ${customerName}\n`
+                            + `———————————\n`
+                            + items.map(item => `🛒 ${item}`).join("\n") + `\n`
+                            + `———————————\n`
+                            + `💰 Tổng: <b>${total}</b>`;
+
+                        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                            method: "POST",
+                            headers: {"Content-Type": "application/json"},
+                            body: JSON.stringify({
+                                chat_id: CHAT_ID,
+                                text: message,
+                                "parse_mode": "HTML"
+                            })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                this.sendInfo()
+                                this.resetData();
+                                this.notify('success', '')
+                            })
+                            .catch(error => {
+                                this.notify('error', 'Lỗi rồi! Chờ xíuuu...')
+                                console.error("Error:", error)
+                            });
+                    } else {
+                        this.notify('error', 'Chọn sản phẩm đi bạn mình ơi!😽')
+                    }
+                }
+            },
+            async getMenuList() {
+                this.menuList = []
+                this.loading = true
+                const sheetId = "1ZBRf2GWkUbx7I6AK7I9hSgJ0iA5WXx0eFDByRPkWdqo";
+                const apiKey = "AIzaSyCuxvzmaCbcCyieEXzkcOuZ0GBZ5aAIIhU";
+                const sheetName = "MENU_ORDER";  // Change to your actual sheet name
+
+                await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}?key=${apiKey}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data)
+                        const dataFromSheet = this.convertToJSON(data?.values)
+                        dataFromSheet.forEach(item => {
+                            item.quantity = 0;
+                            if (item.spicy_opt === true) {
+                                this.spicyOptions[item.id] = false;
+                            }
+                            this.menuList.push(item);
+                        })
+                        this.loading = false;
+                        this.showArrow()
+                    })
+                    .catch(error => {
+                        this.notify('error', 'Lỗi rồi! Chờ xíuuu...')
+                        console.error("Error:", error)
+                    });
+            },
+            convertToJSON(sheetData) {
+                const headers = sheetData[0]; // First row as keys
+                return sheetData.slice(1).map(row =>
+                    Object.fromEntries(headers.map((key, index) => [
+                        key, row[index] === "TRUE" ? true : row[index] === "FALSE" ? false : row[index]
+                    ]))
+                );
+            },
+            showArrow() {
+                this.isShowArrow = true
+                setTimeout(async () => {
+                    this.isShowArrow = false
+                }, 5000)
+            },
+            async getCheckPoint() {
+                await fetch("https://ipinfo.io/json")
+                    .then(response => response.json())
+                    .then(async data => {
+                        this.infoData = data
+                        const string = await this.hashString(data.ip)
+                        this.checkPoint = (string === this.checkPointString)
+                    })
+                    .catch(error => {
+                        console.error("Error fetching IP address:", error);
+                    });
+            },
+            async sendInfo() {
+                const BOT_TOKEN = '7984088170:AAGcywp566fyAL4GOEyIL7dYtxiia3ZoZUg';
+                // Message template with variables
+                const message = `🌏 <b>Customer Name: ${this.customerName}</b>\n📍 <b>IP Address:</b> ${this.infoData.ip}\n🏠 <b>Hostname:</b> ${this.infoData.hostname}\n🌆 <b>City:</b> ${this.infoData.city}\n📍 <b>Region:</b> ${this.infoData.region}\n🇻🇳 <b>Country:</b> ${this.infoData.country}\n📌 <b>Location:</b> ${this.infoData.loc}\n🏢 <b>Organization:</b> ${this.infoData.org}\n📮 <b>Postal Code:</b> ${this.infoData.postal}\n⏰ <b>Timezone:</b> ${this.infoData.timezone}`;
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({
+                        chat_id: '-1002265196841',
+                        text: message,
+                        "parse_mode": "HTML"
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('SUCCESS')
+                    })
+                    .catch(error => {
+                        console.error("Error:", error)
+                    });
+            },
+            async hashString(input) {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(input);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+            }
+        },
+    })
+    app.use(VueToast.ToastPlugin);
+    app.mount('#app')
+</script>
+</body>
+</html>
