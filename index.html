@@ -65,17 +65,21 @@
 </head>
 <body class="bg-orange-50">
 <div id="app" class="max-w-md mx-auto bg-white rounded-3xl shadow-lg overflow-hidden sm:my-10 my-0">
-    <div class="flex items-center justify-center p-4">
+    <div class="flex gap-1 items-center justify-center p-4">
+        <img src="https://iili.io/3FLEqiB.png" alt="Recommended"
+             class="w-[25px] h-[25px]">
         <h1 class="text-xl text-orange-500 font-semibold">
             ĂN VẶT CAM CAM
         </h1>
+        <img src="https://iili.io/3FLEqiB.png" alt="Recommended"
+             class="w-[25px] h-[25px]">
     </div>
     <div class="px-4 max-h-[calc(100vh-60px-89px-72px)] sm:max-h-[calc(100vh-60px-89px-72px-5rem)] overflow-y-auto">
         <div v-show="!loading && item.is_show" v-for="(item, key) in menuList"
              class="relative flex items-center justify-between bg-gray-100 rounded-xl p-4 mb-4"
              :key="key">
             <img v-if="item.recommended === true" src="https://iili.io/3FLETOJ.png" alt="Recommended"
-                 class="absolute top-[0px] -left-[5px] w-[50px] h-[50px]">
+                 class="absolute top-[0px] -left-[10px] w-[40px] h-[40px]">
             <div :class="`bg-[url(${item.thumbnail})]`"
                  class="w-16 h-16 bg-cover bg-no-repeat bg-center rounded-full">
             </div>
