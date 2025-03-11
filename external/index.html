@@ -147,7 +147,7 @@
                     <div class="group relative w-full">
                         <label for="uphone"
                                class="block w-full pb-1 text-sm font-medium text-gray-500 transition-all duration-200 ease-in-out group-focus-within:text-orange-400">Cho
-                            Cam xin phôn:</label>
+                            Số điện thoại:</label>
                         <input id="uphone" v-model="customerPhone" type="text"
                                class="peer h-10 w-full rounded-md bg-gray-50 px-4 outline-none drop-shadow-sm transition-all duration-200 ease-in-out focus:bg-white focus:ring-2 focus:ring-orange-400"
                                placeholder="VD: 0123456789"/>
@@ -157,7 +157,7 @@
             <div class="group relative w-full">
                 <label for="uaddress"
                        class="block w-full pb-1 text-sm font-medium text-gray-500 transition-all duration-200 ease-in-out group-focus-within:text-orange-400">Cho
-                    Cam xin địa chỉ:</label>
+                    Địa chỉ:</label>
                 <input id="uaddress" v-model="customerAddress" type="text"
                        class="peer h-10 w-full rounded-md bg-gray-50 px-4 outline-none drop-shadow-sm transition-all duration-200 ease-in-out focus:bg-white focus:ring-2 focus:ring-orange-400"
                        placeholder="VD: 123 Bình Tĩnh, Bình Thường, HCM"/>
@@ -248,7 +248,6 @@
                     const BOT_TOKEN = '7984088170:AAGcywp566fyAL4GOEyIL7dYtxiia3ZoZUg';
 
                     const date = new Date().toLocaleDateString("vi-VN"); // Lấy ngày hiện tại
-                    const customerName = this.customerName;
                     const items = [];
                     const total = this.formatMoney(this.total);
                     this.menuList.forEach((item) => {
@@ -259,7 +258,9 @@
                     if (items.length > 0) {
                         // Định dạng tin nhắn
                         const message = `🚀 ĐƠN MỚI ${date}\n`
-                            + `😽 Khách: ${customerName}\n`
+                            + `😽 Khách: ${this.customerName}\n`
+                            + `📞 SĐT: ${this.customerPhone}\n`
+                            + `🗺 Địa chỉ: ${this.customerAddress}\n`
                             + `———————————\n`
                             + items.map(item => `🛒 ${item}`).join("\n") + `\n`
                             + `———————————\n`
