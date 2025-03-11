@@ -77,7 +77,8 @@
     <div v-if="showOrderRecent" class="flex gap-1 items-center justify-center p-4 pt-0">
         <p class="text-xl text-green-500 text-center font-semibold mb-2">{{customerName}} đặt hàng thành công</p>
     </div>
-    <div v-if="showOrderRecent" class="px-4 max-h-[calc(100vh-60px-89px-72px)] sm:max-h-[calc(100vh-60px-89px-72px-5rem)] overflow-y-auto">
+    <div v-if="showOrderRecent"
+         class="px-4 max-h-[calc(100vh-60px-89px-72px)] sm:max-h-[calc(100vh-60px-89px-72px-5rem)] overflow-y-auto">
         <div v-for="(item, key) in orderRecent"
              class="relative flex items-center justify-between bg-gray-100 rounded-xl p-4 mb-4"
              :key="key">

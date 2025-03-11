@@ -290,26 +290,25 @@
                             + items.map(item => `🛒 ${item}`).join("\n") + `\n`
                             + `———————————\n`
                             + `💰 Tổng: <b>${total}</b>`;
-                        this.showOrderRecent = true
-                        //
-                        // await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                        //     method: "POST",
-                        //     headers: {"Content-Type": "application/json"},
-                        //     body: JSON.stringify({
-                        //         chat_id: CHAT_ID,
-                        //         text: message,
-                        //         "parse_mode": "HTML"
-                        //     })
-                        // })
-                        //     .then(response => response.json())
-                        //     .then(data => {
-                        //         this.sendInfo()
-                        //         this.notify('success', '')
-                        //     })
-                        //     .catch(error => {
-                        //         this.notify('error', 'Lỗi rồi! Chờ xíuuu...')
-                        //         console.error("Error:", error)
-                        //     });
+
+                        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                            method: "POST",
+                            headers: {"Content-Type": "application/json"},
+                            body: JSON.stringify({
+                                chat_id: CHAT_ID,
+                                text: message,
+                                "parse_mode": "HTML"
+                            })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                this.sendInfo()
+                                this.notify('success', '')
+                            })
+                            .catch(error => {
+                                this.notify('error', 'Lỗi rồi! Chờ xíuuu...')
+                                console.error("Error:", error)
+                            });
                     } else {
                         this.notify('error', 'Chọn sản phẩm đi bạn mình ơi!😽')
                     }
