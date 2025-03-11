@@ -134,19 +134,19 @@
     </div>
     <div v-else class="p-3 border-t border-gray-200">
         <div class="flex flex-col gap-[10px] w-full text-gray-600 mb-2">
-            <div class="group relative w-full">
+            <div class="relative w-full">
                 <div class="flex gap-[10px]">
-                    <div class="groupa relative w-full">
+                    <div class="group relative w-full">
                         <label for="uname"
-                               class="block w-full pb-1 text-sm font-medium text-gray-500 transition-all duration-200 ease-in-out groupa-focus-within:text-orange-400">Cho
+                               class="block w-full pb-1 text-sm font-medium text-gray-500 transition-all duration-200 ease-in-out group-focus-within:text-orange-400">Cho
                             Cam xin tên:</label>
-                        <input id="uname" v-model="customerName" type="text"
+                        <input id="uname" v-model="customerName" type="text" maxlength="10"
                                class="peer h-10 w-full rounded-md bg-gray-50 px-4 outline-none drop-shadow-sm transition-all duration-200 ease-in-out focus:bg-white focus:ring-2 focus:ring-orange-400"
                                placeholder="VD: CAM CAM NÈ"/>
                     </div>
                     <div class="group relative w-full">
                         <label for="uphone"
-                               class="block w-full pb-1 text-sm font-medium text-gray-500 transition-all duration-200 ease-in-out group-focus-within:text-orange-400">Cho
+                               class="block w-full pb-1 text-sm font-medium text-gray-500 transition-all duration-200 ease-in-out group-focus-within:text-orange-400">
                             Số điện thoại:</label>
                         <input id="uphone" v-model="customerPhone" type="text"
                                class="peer h-10 w-full rounded-md bg-gray-50 px-4 outline-none drop-shadow-sm transition-all duration-200 ease-in-out focus:bg-white focus:ring-2 focus:ring-orange-400"
@@ -156,7 +156,7 @@
             </div>
             <div class="group relative w-full">
                 <label for="uaddress"
-                       class="block w-full pb-1 text-sm font-medium text-gray-500 transition-all duration-200 ease-in-out group-focus-within:text-orange-400">Cho
+                       class="block w-full pb-1 text-sm font-medium text-gray-500 transition-all duration-200 ease-in-out group-focus-within:text-orange-400">
                     Địa chỉ:</label>
                 <input id="uaddress" v-model="customerAddress" type="text"
                        class="peer h-10 w-full rounded-md bg-gray-50 px-4 outline-none drop-shadow-sm transition-all duration-200 ease-in-out focus:bg-white focus:ring-2 focus:ring-orange-400"
