@@ -316,6 +316,7 @@
                             .then(data => {
                                 this.sendInfo()
                                 this.notify('success', '')
+                                this.showOrderRecent = true
                             })
                             .catch(error => {
                                 this.notify('error', 'Lỗi rồi! Chờ xíuuu...')
