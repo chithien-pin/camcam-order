@@ -203,7 +203,7 @@
             setTimeout(async () => {
                 await this.getMenuList()
             }, 1000)
-            await this.getInfoUser()
+            this.getInfoUser()
         },
         methods: {
             formatMoney(money) {
@@ -248,6 +248,10 @@
                 if (this.customerName === '') {
                     this.notify('error', 'Nhập tên để Cam biết ai nhak!😽')
                     this.$refs.uname.focus()
+                } else if(this.containsXSS(this.customerName)){
+                    this.notify('error', 'Bạn ơi biết giỏi rồi đừng nghịch nữa!😽')
+                    this.$refs.uname.focus()
+                    await this.sendInfo()
                 } else {
                     this.loading = true
                     const CHAT_ID = '-1002453504219';
@@ -282,7 +286,7 @@
                         })
                             .then(response => response.json())
                             .then(data => {
-                                this.sendInfo()
+                                    this.sendInfo()
                                 this.notify('success', '')
                                 this.showOrderRecent = true
                             })
@@ -366,6 +370,10 @@
                     .catch(error => {
                         console.error("Error:", error)
                     });
+            },
+            containsXSS(input) {
+                const xssPattern = /(<\s*script)|(<\s*img)|(<\s*iframe)|(<\s*object)|(<\s*embed)|(<\s*link)|(<\s*meta)|(<\s*svg)|(<\s*style)|(<\s*body)|(<\s*title)|(<\s*form)|(<\s*input)|(<\s*textarea)|(<\s*button)|(<\s*iframe)|(<\s*video)|(<\s*audio)|(<\s*base)|(<\s*isindex)|(<\s*marquee)|(<\s*math)|(<\s*xml)|javascript:|data:text\/html|vbscript:|expression\(|on\w+\s*=|&#x?[0-9a-f]+;|%3C|%3E|%3D|document\.|window\.|alert\(|confirm\(|prompt\(/i;
+                return xssPattern.test(input);
             }
         }
     })
