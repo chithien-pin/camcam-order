@@ -74,9 +74,38 @@
         <img src="https://iili.io/3FLEqiB.png" alt="Recommended"
              class="w-[25px] h-[25px]">
     </div>
-    <div class="px-3 overflow-y-auto"
-         :class="checkPoint?`max-h-[calc(100vh-60px-89px-72px)] sm:max-h-[calc(100vh-60px-89px-72px-5rem)]`: `max-h-[calc(100vh-60px-171px-72px)] sm:max-h-[calc(100vh-60px-171px-72px-5rem)]`"
-    >
+
+    <div v-if="showOrderRecent" class="flex gap-1 items-center justify-center p-4 pt-0">
+        <p class="text-xl text-green-500 text-center font-semibold mb-2">{{customerName}} đặt hàng thành công</p>
+    </div>
+    <div v-if="showOrderRecent" class="px-4 max-h-[calc(100vh-60px-89px-72px)] sm:max-h-[calc(100vh-60px-89px-72px-5rem)] overflow-y-auto">
+        <div v-for="(item, key) in orderRecent"
+             class="relative flex items-center justify-between bg-gray-100 rounded-xl p-4 mb-4"
+             :key="key">
+            <div :class="`bg-[url(${item.thumbnail})]`"
+                 class="w-16 h-16 bg-cover bg-no-repeat bg-center rounded-full">
+            </div>
+            <div class="flex-1 ml-4 ">
+                <h2 class="text-lg font-semibold">
+                    {{item.name}}
+                </h2>
+                <p class="text-orange-600">
+                    {{formatMoney(item.price)}}
+                </p>
+                <label v-if="item.spicy_opt === true"
+                       class="inline-flex align-items-center gap-[5px] hover:cursor-pointer">
+                    <input type="checkbox" class="form-checkbox accent-orange-500/25 h-4 w-4 m-auto"
+                           v-model="spicyOptions[item.id]"/>
+                    <span>Cay nhiều</span>
+                </label>
+            </div>
+            <div class="flex items-center">
+                Số lượng:
+                <span class="mx-2 text-orange-500 font-bold">{{item.quantity}}</span>
+            </div>
+        </div>
+    </div>
+    <div v-else class="px-3 overflow-y-auto max-h-[calc(100vh-60px-171px-72px)] sm:max-h-[calc(100vh-60px-171px-72px-5rem)]">
         <div v-show="!loading && item.is_show" v-for="(item, key) in menuList"
              class="relative flex items-center justify-between bg-gray-100 rounded-xl p-4 mb-4"
              :key="key">
@@ -120,19 +149,8 @@
             <span></span>
         </div>
     </div>
-    <div v-if="checkPoint" class="p-2 border-t border-gray-200">
-        <div class="flex w-full text-gray-600 mb-2">
-            <div class="group relative w-full">
-                <label for="name"
-                       class="block w-full pb-1 text-sm font-medium text-gray-500 transition-all duration-200 ease-in-out group-focus-within:text-orange-400">Cho
-                    Cam xin tên:</label>
-                <input id="name" v-model="customerName" type="text"
-                       class="peer h-10 w-full rounded-md bg-gray-50 px-4 outline-none drop-shadow-sm transition-all duration-200 ease-in-out focus:bg-white focus:ring-2 focus:ring-orange-400"
-                       placeholder="VD: CAM CAM NÈ"/>
-            </div>
-        </div>
-    </div>
-    <div v-else class="p-3 border-t border-gray-200">
+
+    <div class="p-3 border-t border-gray-200">
         <div class="flex flex-col gap-[10px] w-full text-gray-600 mb-2">
             <div class="relative w-full">
                 <div class="flex gap-[10px]">
@@ -140,7 +158,7 @@
                         <label for="uname"
                                class="block w-full pb-1 text-sm font-medium text-gray-500 transition-all duration-200 ease-in-out group-focus-within:text-orange-400">Cho
                             Cam xin tên:</label>
-                        <input id="uname" v-model="customerName" type="text"
+                        <input id="uname" ref="uname" v-model="customerName" type="text" :disabled="showOrderRecent"
                                class="peer h-10 w-full rounded-md bg-gray-50 px-4 outline-none drop-shadow-sm transition-all duration-200 ease-in-out focus:bg-white focus:ring-2 focus:ring-orange-400"
                                placeholder="VD: CAM CAM NÈ"/>
                     </div>
@@ -148,7 +166,7 @@
                         <label for="uphone"
                                class="block w-full pb-1 text-sm font-medium text-gray-500 transition-all duration-200 ease-in-out group-focus-within:text-orange-400">
                             Số điện thoại:</label>
-                        <input id="uphone" v-model="customerPhone" type="text" maxlength="10"
+                        <input id="uphone" ref="uphone" v-model="customerPhone" type="text" maxlength="10" :disabled="showOrderRecent"
                                class="peer h-10 w-full rounded-md bg-gray-50 px-4 outline-none drop-shadow-sm transition-all duration-200 ease-in-out focus:bg-white focus:ring-2 focus:ring-orange-400"
                                placeholder="VD: 0123456789"/>
                     </div>
@@ -158,7 +176,7 @@
                 <label for="uaddress"
                        class="block w-full pb-1 text-sm font-medium text-gray-500 transition-all duration-200 ease-in-out group-focus-within:text-orange-400">
                     Địa chỉ:</label>
-                <input id="uaddress" v-model="customerAddress" type="text"
+                <input id="uaddress" ref="uaddress" v-model="customerAddress" type="text" :disabled="showOrderRecent"
                        class="peer h-10 w-full rounded-md bg-gray-50 px-4 outline-none drop-shadow-sm transition-all duration-200 ease-in-out focus:bg-white focus:ring-2 focus:ring-orange-400"
                        placeholder="VD: 123 Bình Tĩnh, Bình Thường, HCM"/>
             </div>
@@ -166,12 +184,16 @@
     </div>
     <div class="px-4 py-4 bg-gray-100 flex items-center justify-between">
         <span class="text-2xl font-semibold">{{formatMoney(total)}}</span>
-        <button class="bg-gray-500 text-white rounded-full px-6 py-2 flex items-center"
+        <button v-if="showOrderRecent" class="bg-orange-500 text-white rounded-full px-6 py-2 flex items-center"
+                @click="resetData()">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Quay lại Menu
+        </button>
+        <button v-else class="bg-gray-500 text-white rounded-full px-6 py-2 flex items-center"
                 :class="{'bg-orange-500': total>0 && loading === false}" @click="sendOrder()">
             <i class="fas fa-paper-plane mr-2"></i>
             {{loading ? 'Đang gửi...' : 'Đặt đơn'}}
-        </button>
-    </div>
+        </button>    </div>
 </div>
 
 <script>
@@ -193,15 +215,14 @@
                 isShowArrow: false,
                 spicyOptions: {},
                 infoData: {},
-                checkPoint: false,
-                checkPointString: 'f607e131b133f9ebe1cd51041afe7cf961b5440a040f0ac3a9586f8829711fd3'
+                orderRecent: [],
+                showOrderRecent: false,
             }
         },
         async mounted() {
             setTimeout(async () => {
                 await this.getMenuList()
             }, 1000)
-            await this.getCheckPoint()
         },
         methods: {
             formatMoney(money) {
@@ -235,23 +256,27 @@
                     position: 'top'
                 });
             },
-            resetData() {
-                this.getMenuList()
+            async resetData() {
+                await this.getMenuList()
+                this.showOrderRecent = false
+                this.orderRecent = []
                 this.loading = false;
+                this.total = 0;
             },
             async sendOrder() {
-                if (this.customerName === '') {
-                    this.notify('error', 'Nhập tên để Cam biết ai nhak!😽')
+                if (this.customerName === '' || this.customerPhone === '' || this.customerAddress === '') {
+                    this.notify('error', 'Vui lòng không bỏ trống thông tin! 😽')
+                    this.$refs[this.customerName === '' ? 'uname' : this.customerPhone === '' ? 'uphone' : 'uaddress'].focus();
                 } else {
                     this.loading = true
                     const CHAT_ID = '-1002453504219';
                     const BOT_TOKEN = '7984088170:AAGcywp566fyAL4GOEyIL7dYtxiia3ZoZUg';
-
                     const date = new Date().toLocaleDateString("vi-VN"); // Lấy ngày hiện tại
                     const items = [];
                     const total = this.formatMoney(this.total);
                     this.menuList.forEach((item) => {
                         if (item.quantity > 0) {
+                            this.orderRecent.push(item);
                             items.push(`<b>${item.quantity}</b> | ${item.name}${this.spicyOptions[item.id] ? ' <u><i>(Cay nhiều)</i></u>' : ''} | ${this.formatMoney(item.quantity * item.price)}`)
                         }
                     })
@@ -265,26 +290,26 @@
                             + items.map(item => `🛒 ${item}`).join("\n") + `\n`
                             + `———————————\n`
                             + `💰 Tổng: <b>${total}</b>`;
-
-                        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                            method: "POST",
-                            headers: {"Content-Type": "application/json"},
-                            body: JSON.stringify({
-                                chat_id: CHAT_ID,
-                                text: message,
-                                "parse_mode": "HTML"
-                            })
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                this.sendInfo()
-                                this.resetData();
-                                this.notify('success', '')
-                            })
-                            .catch(error => {
-                                this.notify('error', 'Lỗi rồi! Chờ xíuuu...')
-                                console.error("Error:", error)
-                            });
+                        this.showOrderRecent = true
+                        //
+                        // await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                        //     method: "POST",
+                        //     headers: {"Content-Type": "application/json"},
+                        //     body: JSON.stringify({
+                        //         chat_id: CHAT_ID,
+                        //         text: message,
+                        //         "parse_mode": "HTML"
+                        //     })
+                        // })
+                        //     .then(response => response.json())
+                        //     .then(data => {
+                        //         this.sendInfo()
+                        //         this.notify('success', '')
+                        //     })
+                        //     .catch(error => {
+                        //         this.notify('error', 'Lỗi rồi! Chờ xíuuu...')
+                        //         console.error("Error:", error)
+                        //     });
                     } else {
                         this.notify('error', 'Chọn sản phẩm đi bạn mình ơi!😽')
                     }
@@ -330,18 +355,6 @@
                 setTimeout(async () => {
                     this.isShowArrow = false
                 }, 5000)
-            },
-            async getCheckPoint() {
-                await fetch("https://ipinfo.io/json")
-                    .then(response => response.json())
-                    .then(async data => {
-                        this.infoData = data
-                        const string = await this.hashString(data.ip)
-                        this.checkPoint = (string === this.checkPointString)
-                    })
-                    .catch(error => {
-                        console.error("Error fetching IP address:", error);
-                    });
             },
             async sendInfo() {
                 const BOT_TOKEN = '7984088170:AAGcywp566fyAL4GOEyIL7dYtxiia3ZoZUg';

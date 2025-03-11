@@ -74,12 +74,13 @@
         <img src="https://iili.io/3FLEqiB.png" alt="Recommended"
              class="w-[25px] h-[25px]">
     </div>
-    <div class="px-4 max-h-[calc(100vh-60px-89px-72px)] sm:max-h-[calc(100vh-60px-89px-72px-5rem)] overflow-y-auto">
-        <div v-show="!loading && item.is_show" v-for="(item, key) in menuList"
+    <div v-if="showOrderRecent" class="flex gap-1 items-center justify-center p-4 pt-0">
+        <p class="text-xl text-green-500 text-center font-semibold mb-2">{{customerName}} đặt hàng thành công</p>
+    </div>
+    <div v-if="showOrderRecent" class="px-4 max-h-[calc(100vh-60px-89px-72px)] sm:max-h-[calc(100vh-60px-89px-72px-5rem)] overflow-y-auto">
+        <div v-for="(item, key) in orderRecent"
              class="relative flex items-center justify-between bg-gray-100 rounded-xl p-4 mb-4"
              :key="key">
-            <img v-if="item.recommended === true" src="https://iili.io/3FLETOJ.png" alt="Recommended"
-                 class="absolute top-[0px] -left-[10px] w-[40px] h-[40px]">
             <div :class="`bg-[url(${item.thumbnail})]`"
                  class="w-16 h-16 bg-cover bg-no-repeat bg-center rounded-full">
             </div>
@@ -98,41 +99,77 @@
                 </label>
             </div>
             <div class="flex items-center">
-                <button class="bg-gray-200 text-gray-600 rounded-full w-8 h-8 flex items-center justify-center"
-                        @click="decreaseQuantity(key)">
-                    -
-                </button>
-                <span class="mx-2">{{item.quantity}}</span>
-                <button class="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
-                        @click="increaseQuantity(key)">
-                    +
-                </button>
+                Số lượng:
+                <span class="mx-2 text-orange-500 font-bold">{{item.quantity}}</span>
             </div>
         </div>
-        <div v-show="loading || menuList.length === 0">
-            <img src="https://iili.io/3FZqYsR.png" alt="MENU CAMCAM removebg preview" border="0">
-        </div>
-        <div v-show="isShowArrow && !loading && menuList.length > 3" class="arrow">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
     </div>
-    <div class="px-4 py-2 border-t border-gray-200">
-        <div class="flex w-full text-gray-600 mb-2">
-            <div class="group relative w-full">
-                <label for="name"
-                       class="block w-full pb-1 text-sm font-medium text-gray-500 transition-all duration-200 ease-in-out group-focus-within:text-orange-400">Cho
-                    Cam xin tên:</label>
-                <input id="name" v-model="customerName" type="text"
-                       class="peer h-10 w-full rounded-md bg-gray-50 px-4 outline-none drop-shadow-sm transition-all duration-200 ease-in-out focus:bg-white focus:ring-2 focus:ring-orange-400"
-                       placeholder="VD: CAM CAM NÈ"/>
+    <div v-else>
+        <div class="px-4 max-h-[calc(100vh-60px-89px-72px)] sm:max-h-[calc(100vh-60px-89px-72px-5rem)] overflow-y-auto">
+            <div v-show="!loading && item.is_show" v-for="(item, key) in menuList"
+                 class="relative flex items-center justify-between bg-gray-100 rounded-xl p-4 mb-4"
+                 :key="key">
+                <img v-if="item.recommended === true" src="https://iili.io/3FLETOJ.png" alt="Recommended"
+                     class="absolute top-[0px] -left-[10px] w-[40px] h-[40px]">
+                <div :class="`bg-[url(${item.thumbnail})]`"
+                     class="w-16 h-16 bg-cover bg-no-repeat bg-center rounded-full">
+                </div>
+                <div class="flex-1 ml-4 ">
+                    <h2 class="text-lg font-semibold">
+                        {{item.name}}
+                    </h2>
+                    <p class="text-orange-600">
+                        {{formatMoney(item.price)}}
+                    </p>
+                    <label v-if="item.spicy_opt === true"
+                           class="inline-flex align-items-center gap-[5px] hover:cursor-pointer">
+                        <input type="checkbox" class="form-checkbox accent-orange-500/25 h-4 w-4 m-auto"
+                               v-model="spicyOptions[item.id]"/>
+                        <span>Cay nhiều</span>
+                    </label>
+                </div>
+                <div class="flex items-center">
+                    <button class="bg-gray-200 text-gray-600 rounded-full w-8 h-8 flex items-center justify-center"
+                            @click="decreaseQuantity(key)">
+                        -
+                    </button>
+                    <span class="mx-2">{{item.quantity}}</span>
+                    <button class="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
+                            @click="increaseQuantity(key)">
+                        +
+                    </button>
+                </div>
+            </div>
+            <div v-show="loading || menuList.length === 0">
+                <img src="https://iili.io/3FZqYsR.png" alt="MENU CAMCAM removebg preview" border="0">
+            </div>
+            <div v-show="isShowArrow && !loading && menuList.length > 3" class="arrow">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        <div class="px-4 py-2 border-t border-gray-200">
+            <div class="flex w-full text-gray-600 mb-2">
+                <div class="group relative w-full">
+                    <label for="name"
+                           class="block w-full pb-1 text-sm font-medium text-gray-500 transition-all duration-200 ease-in-out group-focus-within:text-orange-400">Cho
+                        Cam xin tên:</label>
+                    <input id="name" ref="uname" v-model="customerName" type="text"
+                           class="peer h-10 w-full rounded-md bg-gray-50 px-4 outline-none drop-shadow-sm transition-all duration-200 ease-in-out focus:bg-white focus:ring-2 focus:ring-orange-400"
+                           placeholder="VD: CAM CAM NÈ"/>
+                </div>
             </div>
         </div>
     </div>
     <div class="px-4 py-4 bg-gray-100 flex items-center justify-between">
         <span class="text-2xl font-semibold">{{formatMoney(total)}}</span>
-        <button class="bg-gray-500 text-white rounded-full px-6 py-2 flex items-center"
+        <button v-if="showOrderRecent" class="bg-orange-500 text-white rounded-full px-6 py-2 flex items-center"
+                @click="resetData()">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Quay lại Menu
+        </button>
+        <button v-else class="bg-gray-500 text-white rounded-full px-6 py-2 flex items-center"
                 :class="{'bg-orange-500': total>0 && loading === false}" @click="sendOrder()">
             <i class="fas fa-paper-plane mr-2"></i>
             {{loading ? 'Đang gửi...' : 'Đặt đơn'}}
@@ -155,6 +192,7 @@
                 customerName: '',
                 loading: false,
                 isShowArrow: false,
+                showOrderRecent: false,
                 spicyOptions: {},
                 infoData: {},
                 orderRecent: [],
@@ -198,13 +236,17 @@
                     position: 'top'
                 });
             },
-            resetData() {
-                this.getMenuList()
+            async resetData() {
+                await this.getMenuList()
+                this.showOrderRecent = false
+                this.orderRecent = []
                 this.loading = false;
+                this.total = 0;
             },
             async sendOrder() {
                 if (this.customerName === '') {
                     this.notify('error', 'Nhập tên để Cam biết ai nhak!😽')
+                    this.$refs.uname.focus()
                 } else {
                     this.loading = true
                     const CHAT_ID = '-1002453504219';
@@ -215,6 +257,7 @@
                     const total = this.formatMoney(this.total);
                     this.menuList.forEach((item) => {
                         if (item.quantity > 0) {
+                            this.orderRecent.push(item);
                             items.push(`<b>${item.quantity}</b> | ${item.name}${this.spicyOptions[item.id] ? ' <u><i>(Cay nhiều)</i></u>' : ''} | ${this.formatMoney(item.quantity * item.price)}`)
                         }
                     })
@@ -239,8 +282,8 @@
                             .then(response => response.json())
                             .then(data => {
                                 this.sendInfo()
-                                this.resetData();
                                 this.notify('success', '')
+                                this.showOrderRecent = true
                             })
                             .catch(error => {
                                 this.notify('error', 'Lỗi rồi! Chờ xíuuu...')
