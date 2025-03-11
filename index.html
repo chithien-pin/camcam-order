@@ -145,6 +145,21 @@
     const app = createApp({
         setup() {
         },
+        data() {
+            return {
+                menuList: [],
+                total: 0,
+                subTotal: 0,
+                feeShip: 0,
+                discount: 0,
+                customerName: '',
+                loading: false,
+                isShowArrow: false,
+                spicyOptions: {},
+                infoData: {},
+                orderRecent: [],
+            }
+        },
         async mounted() {
             setTimeout(async () => {
                 await this.getMenuList()
@@ -194,7 +209,6 @@
                     this.loading = true
                     const CHAT_ID = '-1002453504219';
                     const BOT_TOKEN = '7984088170:AAGcywp566fyAL4GOEyIL7dYtxiia3ZoZUg';
-
                     const date = new Date().toLocaleDateString("vi-VN"); // Lấy ngày hiện tại
                     const customerName = this.customerName;
                     const items = [];
@@ -308,20 +322,6 @@
                     .catch(error => {
                         console.error("Error:", error)
                     });
-            }
-        },
-        data() {
-            return {
-                menuList: [],
-                total: 0,
-                subTotal: 0,
-                feeShip: 0,
-                discount: 0,
-                customerName: '',
-                loading: false,
-                isShowArrow: false,
-                spicyOptions: {},
-                infoData: {}
             }
         }
     })
