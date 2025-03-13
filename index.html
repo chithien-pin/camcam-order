@@ -150,6 +150,7 @@
                                 </p>
                             </div>
                         </div>
+                        <p class="text-orange-500 text-sm">Chọn combo:</p>
                         <div class="flex gap-[5px]">
                             <a v-for="(item, key) in duTrend.listCombo" href="javascript:void(0)" :key="key"
                                :class="{
@@ -159,7 +160,8 @@
                                class="text-xs py-1 px-3 border rounded-[4px] cursor-pointer"
                                @click="duTrend.activeCombo=key">{{item.name}}</a>
                         </div>
-                        <div v-if="duTrend.activeCombo !== ''" class="flex gap-[5px] flex-wrap mt-3">
+                        <p v-if="duTrend.activeCombo !== ''" class="text-orange-500 text-sm mt-3">Chọn số lượng vị bạn muốn trong combo:</p>
+                        <div v-if="duTrend.activeCombo !== ''" class="flex gap-[5px] flex-wrap">
                             <div v-for="(item, key) in duTrend.listFlavor" :key="key"
                                  :data-key="key" v-show="menuList[0].miliket_flavor.includes(key)"
                                  :class="duTrend.activeFlavor === key || (key === 'mix' && duTrend.subSumQuantity < duTrend.sumQuantity) ? 'text-orange-800 border-orange-500 bg-orange-300' : ''"
@@ -180,7 +182,8 @@
                         </div>
                         <div class="flex justify-between mt-2 items-center">
                             <div class="flex items-start flex-col mr-1">
-                                <p class="text-xs">Tổng: <strong class="text-orange-500">{{duTrend.sumQuantity}} gói</strong> (<strong class="text-orange-500">{{formatMoney(duTrend.subTotal)}}</strong>)</p>
+                                <p class="text-xs">Đã chọn <strong class="text-orange-500">{{duTrend.subSumQuantity}}</strong> gói</p>
+                                <p class="text-sm">Tổng: <strong class="text-orange-500">{{duTrend.sumQuantity}} gói</strong> (<strong class="text-orange-500">{{formatMoney(duTrend.subTotal)}}</strong>)</p>
                             </div>
                             <a v-if="duTrend.activeCombo !== ''"
                                class="block text-sm text-right hover:underline text-orange-500"
@@ -331,7 +334,7 @@
                         '1goi': {name: '1 Gói', keyPrice: 'price', quantity: 1},
                         '6goi': {name: '6 Gói', keyPrice: 'price_cb1', quantity: 6},
                         '12goi': {name: '12 Gói', keyPrice: 'price_cb2', quantity: 12},
-                        '1thung': {name: '1 Thùng', keyPrice: 'price_cb3', quantity: 16},
+                        '1thung': {name: '1 Thùng (16 gói)', keyPrice: 'price_cb3', quantity: 16},
                     },
                     listFlavor: {
                         'mix': {name: 'MIX VỊ', quantity: 0},
