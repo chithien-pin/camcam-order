@@ -80,7 +80,7 @@
     <div v-if="showOrderRecent"
          class="px-4 max-h-[calc(100vh-60px-89px-72px)] sm:max-h-[calc(100vh-60px-89px-72px-5rem)] overflow-y-auto">
         <div v-if="duTrend.subTotal>0">
-            <div class="relative bg-gray-100 rounded-xl p-3">
+            <div class="relative bg-gray-100 rounded-xl p-3 mb-4">
                 <div class="flex items-center justify-between mb-2">
                     <div :class="`bg-[url(${menuList[0].thumbnail})]`"
                          class="w-16 h-16 bg-cover bg-no-repeat bg-center rounded-full">
@@ -196,7 +196,7 @@
                      class="relative flex items-center justify-between bg-gray-100 rounded-xl p-2 mb-3"
                      :key="key">
                     <img v-if="item.best_seller === true" src="https://iili.io/3qZxtRI.png" alt="Recommended"
-                         class="absolute -top-[5px] -left-[15px] w-[70px] h-[70px]">
+                         class="absolute -top-[5px] -left-[15px] w-[60px] h-[60px]">
                     <img v-else-if="item.is_new === true" src="https://iili.io/3qZfrox.png" alt="Recommended"
                          class="absolute top-[0px] -left-[10px] w-[50px] h-[50px]">
                     <img v-else-if="item.recommended === true" src="https://iili.io/3FLETOJ.png" alt="Recommended"
@@ -235,7 +235,7 @@
                      class="relative flex items-center justify-between bg-gray-100 rounded-xl p-2 mb-3"
                      :key="key">
                     <img v-if="item.best_seller === true" src="https://iili.io/3qZxtRI.png" alt="Recommended"
-                         class="absolute -top-[5px] -left-[15px] w-[70px] h-[70px]">
+                         class="absolute -top-[5px] -left-[15px] w-[60px] h-[60px]">
                     <img v-else-if="item.is_new === true" src="https://iili.io/3qZfrox.png" alt="Recommended"
                          class="absolute top-[0px] -left-[10px] w-[50px] h-[50px]">
                     <img v-else-if="item.recommended === true" src="https://iili.io/3FLETOJ.png" alt="Recommended"
@@ -324,10 +324,10 @@
                 customerName: '',
                 loading: false,
                 isShowArrow: false,
-                showOrderRecent: false,
                 spicyOptions: {},
                 infoData: {},
                 orderRecent: [],
+                showOrderRecent: false,
                 duTrend: {
                     activeCombo: '', // 1goi, 6goi, 12goi, 1thung
                     activeFlavor: 'mix', // mix, kimchi, carbonara, cari, chuacay, phomai, kebab,

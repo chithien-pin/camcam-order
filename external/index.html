@@ -74,12 +74,35 @@
         <img src="https://iili.io/3FLEqiB.png" alt="Recommended"
              class="w-[25px] h-[25px]">
     </div>
-
     <div v-if="showOrderRecent" class="flex gap-1 items-center justify-center p-4 pt-0">
         <p class="text-xl text-green-500 text-center font-semibold mb-2">{{customerName}} đặt hàng thành công</p>
     </div>
     <div v-if="showOrderRecent"
-         class="px-4 max-h-[calc(100vh-60px-89px-72px)] sm:max-h-[calc(100vh-60px-89px-72px-5rem)] overflow-y-auto">
+         class="px-4 max-h-[calc(100vh-60px-223px-72px)] sm:max-h-[calc(100vh-60px-223px-72px-5rem)] overflow-y-auto">
+        <div v-if="duTrend.subTotal>0">
+            <div class="relative bg-gray-100 rounded-xl p-3 mb-4">
+                <div class="flex items-center justify-between mb-2">
+                    <div :class="`bg-[url(${menuList[0].thumbnail})]`"
+                         class="w-16 h-16 bg-cover bg-no-repeat bg-center rounded-full">
+                    </div>
+                    <div class="flex-1 ml-4 ">
+                        <h2 class="text-md font-semibold">
+                            {{menuList[0].name}}
+                        </h2>
+                        <p class="text-orange-600">
+                            {{formatMoney(duTrend.subTotal)}}
+                        </p>
+                    </div>
+                </div>
+                <div class="flex gap-[5px] flex-wrap mt-3">
+                    <div v-for="(item, key) in duTrend.listFlavor" :key="key"
+                         :data-key="key" v-show="item.quantity > 0 || key==='mix'"
+                         class="relative flex justify-between items-center gap-1 text-xs py-1 px-1 border border-gray-300 bg-white rounded-full cursor-pointer">
+                        <strong>{{key==='mix' ? (duTrend.sumQuantity - duTrend.subSumQuantity) : item.quantity}}</strong> {{item.name}}
+                    </div>
+                </div>
+            </div>
+        </div>
         <div v-for="(item, key) in orderRecent"
              class="relative flex items-center justify-between bg-gray-100 rounded-xl p-4 mb-4"
              :key="key">
@@ -106,52 +129,157 @@
             </div>
         </div>
     </div>
-    <div v-else
-         class="px-3 overflow-y-auto max-h-[calc(100vh-60px-171px-72px)] sm:max-h-[calc(100vh-60px-171px-72px-5rem)]">
-        <div v-show="!loading && item.is_show" v-for="(item, key) in menuList"
-             class="relative flex items-center justify-between bg-gray-100 rounded-xl p-4 mb-4"
-             :key="key">
-            <img v-if="item.recommended === true" src="https://iili.io/3FLETOJ.png" alt="Recommended"
-                 class="absolute top-[0px] -left-[10px] w-[40px] h-[40px]">
-            <div :class="`bg-[url(${item.thumbnail})]`"
-                 class="w-16 h-16 bg-cover bg-no-repeat bg-center rounded-full">
+    <div v-else>
+        <div class="px-4 max-h-[calc(100vh-60px-171px-72px)] sm:max-h-[calc(100vh-60px-171px-72px-5rem)] overflow-y-auto">
+            <div v-show="!loading">
+                <div v-if="menuList.length > 0"
+                     class="relative mt-[15px] pt-[10px] trend border border-orange-500 p-[5px] mb-3 rounded-[15px]">
+                    <p class="absolute -top-[20px] left-[10px] bg-white px-[10px] text-xl text-orange-500 font-semibold mb-1">
+                        Đu Trend cùng Cam</p>
+                    <div class="relative bg-gray-100 rounded-xl p-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <div :class="`bg-[url(${menuList[0].thumbnail})]`"
+                                 class="w-16 h-16 bg-cover bg-no-repeat bg-center rounded-full">
+                            </div>
+                            <div class="flex-1 ml-4 ">
+                                <h2 class="text-md font-semibold">
+                                    {{menuList[0].name}}
+                                </h2>
+                                <p class="text-orange-600">
+                                    {{formatMoney(menuList[0][duTrend.listCombo[duTrend.activeCombo || '1goi'].keyPrice])}}
+                                </p>
+                            </div>
+                        </div>
+                        <p class="text-orange-500 text-sm">Chọn combo:</p>
+                        <div class="flex gap-[5px]">
+                            <a v-for="(item, key) in duTrend.listCombo" href="javascript:void(0)" :key="key"
+                               :class="{
+                                    'bg-orange-400 text-white border-orange-500': duTrend.activeCombo === key,
+                                    'border-gray-300 bg-white': duTrend.activeCombo !== key
+                               }"
+                               class="text-xs py-1 px-3 border rounded-[4px] cursor-pointer"
+                               @click="duTrend.activeCombo=key">{{item.name}}</a>
+                        </div>
+                        <p v-if="duTrend.activeCombo !== ''" class="text-orange-500 text-sm mt-3">Chọn số lượng vị bạn muốn trong combo:</p>
+                        <div v-if="duTrend.activeCombo !== ''" class="flex gap-[5px] flex-wrap">
+                            <div v-for="(item, key) in duTrend.listFlavor" :key="key"
+                                 :data-key="key" v-show="menuList[0].miliket_flavor.includes(key)"
+                                 :class="duTrend.activeFlavor === key || (key === 'mix' && duTrend.subSumQuantity < duTrend.sumQuantity) ? 'text-orange-800 border-orange-500 bg-orange-300' : ''"
+                                 class="relative flex justify-between items-center gap-1 text-xs py-1 px-1 border border-gray-300 bg-white rounded-full cursor-pointer"
+                                 @click="duTrend.activeFlavor = key">
+                                <button v-if="key !== 'mix'"
+                                        class="bg-white text-gray-600 rounded-full w-5 h-5 flex items-center justify-center"
+                                        @click="decreaseQuantityMiliket(key)">
+                                    -
+                                </button>
+                                <strong v-if="key !== 'mix'">{{item.quantity}}</strong> {{item.name}}
+                                <button v-if="key !== 'mix'"
+                                        class="bg-orange-600 text-white rounded-full w-5 h-5 flex items-center justify-center"
+                                        @click="increaseQuantityMiliket(key)">
+                                    +
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex justify-between mt-2 items-center">
+                            <div class="flex items-start flex-col mr-1">
+                                <p class="text-xs">Đã chọn <strong class="text-orange-500">{{duTrend.subSumQuantity}}</strong> gói</p>
+                                <p class="text-sm">Tổng: <strong class="text-orange-500">{{duTrend.sumQuantity}} gói</strong> (<strong class="text-orange-500">{{formatMoney(duTrend.subTotal)}}</strong>)</p>
+                            </div>
+                            <a v-if="duTrend.activeCombo !== ''"
+                               class="block text-sm text-right hover:underline text-orange-500"
+                               href="javascript:void(0)" @click="resetDuTrend()">Xóa bỏ</a>
+                        </div>
+                    </div>
+                </div>
+                <p v-if="menuList.length > 0" class="text-xl text-orange-500 font-semibold mb-1">Menu chính</p>
+                <div v-show="item.is_show" v-for="(item, key) in menuList"
+                     class="relative flex items-center justify-between bg-gray-100 rounded-xl p-2 mb-3"
+                     :key="key">
+                    <img v-if="item.best_seller === true" src="https://iili.io/3qZxtRI.png" alt="Recommended"
+                         class="absolute -top-[5px] -left-[15px] w-[60px] h-[60px]">
+                    <img v-else-if="item.is_new === true" src="https://iili.io/3qZfrox.png" alt="Recommended"
+                         class="absolute top-[0px] -left-[10px] w-[50px] h-[50px]">
+                    <img v-else-if="item.recommended === true" src="https://iili.io/3FLETOJ.png" alt="Recommended"
+                         class="absolute top-[0px] -left-[10px] w-[40px] h-[40px]">
+                    <div :class="`bg-[url(${item.thumbnail})]`"
+                         class="w-16 h-16 bg-cover bg-no-repeat bg-center rounded-full">
+                    </div>
+                    <div class="flex-1 ml-4 ">
+                        <h2 class="text-md font-semibold">
+                            {{item.name}}
+                        </h2>
+                        <p class="text-orange-600">
+                            {{formatMoney(item.price)}}
+                        </p>
+                        <label v-if="item.spicy_opt === true"
+                               class="inline-flex align-items-center gap-[5px] hover:cursor-pointer">
+                            <input type="checkbox" class="form-checkbox accent-orange-500/25 h-4 w-4 m-auto"
+                                   v-model="spicyOptions[item.id]"/>
+                            <span>Cay nhiều</span>
+                        </label>
+                    </div>
+                    <div class="flex items-center">
+                        <button class="bg-gray-200 text-gray-600 rounded-full w-8 h-8 flex items-center justify-center"
+                                @click="decreaseQuantity(item.id)">
+                            -
+                        </button>
+                        <span class="mx-2">{{item.quantity}}</span>
+                        <button class="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
+                                @click="increaseQuantity(item.id)">
+                            +
+                        </button>
+                    </div>
+                </div>
+                <p v-if="menuTopping.length > 0" class="text-xl text-orange-500 font-semibold mb-1">Topping</p>
+                <div v-show="item.is_show" v-for="(item, key) in menuTopping"
+                     class="relative flex items-center justify-between bg-gray-100 rounded-xl p-2 mb-3"
+                     :key="key">
+                    <img v-if="item.best_seller === true" src="https://iili.io/3qZxtRI.png" alt="Recommended"
+                         class="absolute -top-[5px] -left-[15px] w-[60px] h-[60px]">
+                    <img v-else-if="item.is_new === true" src="https://iili.io/3qZfrox.png" alt="Recommended"
+                         class="absolute top-[0px] -left-[10px] w-[50px] h-[50px]">
+                    <img v-else-if="item.recommended === true" src="https://iili.io/3FLETOJ.png" alt="Recommended"
+                         class="absolute top-[0px] -left-[10px] w-[40px] h-[40px]">
+                    <div :class="`bg-[url(${item.thumbnail})]`"
+                         class="w-16 h-16 bg-cover bg-no-repeat bg-center rounded-full">
+                    </div>
+                    <div class="flex-1 ml-4 ">
+                        <h2 class="text-md font-semibold">
+                            {{item.name}}
+                        </h2>
+                        <p class="text-orange-600">
+                            {{formatMoney(item.price)}}
+                        </p>
+                        <label v-if="item.spicy_opt === true"
+                               class="inline-flex align-items-center gap-[5px] hover:cursor-pointer">
+                            <input type="checkbox" class="form-checkbox accent-orange-500/25 h-4 w-4 m-auto"
+                                   v-model="spicyOptions[item.id]"/>
+                            <span>Cay nhiều</span>
+                        </label>
+                    </div>
+                    <div class="flex items-center">
+                        <button class="bg-gray-200 text-gray-600 rounded-full w-8 h-8 flex items-center justify-center"
+                                @click="decreaseQuantity(item.id)">
+                            -
+                        </button>
+                        <span class="mx-2">{{item.quantity}}</span>
+                        <button class="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
+                                @click="increaseQuantity(item.id)">
+                            +
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="flex-1 ml-4 ">
-                <h2 class="text-lg font-semibold">
-                    {{item.name}}
-                </h2>
-                <p class="text-orange-600">
-                    {{formatMoney(item.price)}}
-                </p>
-                <label v-if="item.spicy_opt === true"
-                       class="inline-flex align-items-center gap-[5px] hover:cursor-pointer">
-                    <input type="checkbox" class="form-checkbox accent-orange-500/25 h-4 w-4 m-auto"
-                           v-model="spicyOptions[item.id]"/>
-                    <span>Cay nhiều</span>
-                </label>
+            <div v-show="loading || menuList.length === 0">
+                <img src="https://iili.io/3FZqYsR.png" alt="MENU CAMCAM removebg preview" border="0">
             </div>
-            <div class="flex items-center">
-                <button class="bg-gray-200 text-gray-600 rounded-full w-8 h-8 flex items-center justify-center"
-                        @click="decreaseQuantity(key)">
-                    -
-                </button>
-                <span class="mx-2">{{item.quantity}}</span>
-                <button class="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
-                        @click="increaseQuantity(key)">
-                    +
-                </button>
+            <div v-show="isShowArrow && !loading && menuList.length > 3" class="arrow">
+                <span></span>
+                <span></span>
+                <span></span>
             </div>
-        </div>
-        <div v-show="loading || menuList.length === 0">
-            <img src="https://iili.io/3FZqYsR.png" alt="MENU CAMCAM removebg preview" border="0">
-        </div>
-        <div v-show="isShowArrow && !loading && menuList.length > 3" class="arrow">
-            <span></span>
-            <span></span>
-            <span></span>
         </div>
     </div>
-
     <div class="p-3 border-t border-gray-200">
         <div class="flex flex-col gap-[10px] w-full text-gray-600 mb-2">
             <div class="relative w-full">
@@ -208,6 +336,8 @@
         data() {
             return {
                 menuList: [],
+                menuFull: [],
+                menuTopping: [],
                 total: 0,
                 subTotal: 0,
                 feeShip: 0,
@@ -221,6 +351,74 @@
                 infoData: {},
                 orderRecent: [],
                 showOrderRecent: false,
+                duTrend: {
+                    activeCombo: '', // 1goi, 6goi, 12goi, 1thung
+                    activeFlavor: 'mix', // mix, kimchi, carbonara, cari, chuacay, phomai, kebab,
+                    listCombo: {
+                        '1goi': {name: '1 Gói', keyPrice: 'price', quantity: 1},
+                        '6goi': {name: '6 Gói', keyPrice: 'price_cb1', quantity: 6},
+                        '12goi': {name: '12 Gói', keyPrice: 'price_cb2', quantity: 12},
+                        '1thung': {name: '1 Thùng (16 gói)', keyPrice: 'price_cb3', quantity: 16},
+                    },
+                    listFlavor: {
+                        'mix': {name: 'MIX VỊ', quantity: 0},
+                        'kimchi': {name: 'Kim chi', quantity: 0},
+                        'carbonara': {name: 'Carbonara', quantity: 0},
+                        'cari': {name: 'Cà ri', quantity: 0},
+                        'chuacay': {name: 'Chua cay', quantity: 0},
+                        'phomai': {name: 'Phô mai', quantity: 0},
+                        'kebab': {name: 'Kebab', quantity: 0},
+                    },
+                    subTotal: 0,
+                    sumQuantity: 0,
+                    subSumQuantity: 0,
+                    disableCombo: [],
+                }
+            }
+        },
+        watch: {
+            'duTrend': {
+                deep: true,
+                handler() {
+                    if(this.duTrend.activeCombo !== ''){
+                        let sumQuantity = 0;
+                        for (const key in this.duTrend.listFlavor) {
+                            sumQuantity += this.duTrend.listFlavor[key].quantity;
+                        }
+                        this.duTrend.subSumQuantity = sumQuantity;
+                        if (sumQuantity < this.duTrend.listCombo[this.duTrend.activeCombo].quantity) {
+                            switch (this.duTrend.activeCombo) {
+                                case '6goi':
+                                    this.duTrend.sumQuantity = this.duTrend.listCombo['6goi'].quantity;
+                                    break;
+                                case '12goi':
+                                    this.duTrend.sumQuantity = this.duTrend.listCombo['12goi'].quantity;
+                                    break;
+                                case '1thung':
+                                    this.duTrend.sumQuantity = this.duTrend.listCombo['1thung'].quantity;
+                                    break;
+                                case '1goi':
+                                    this.duTrend.sumQuantity = this.duTrend.listCombo['1goi'].quantity;
+                                    break;
+                            }
+                        } else {
+                            this.duTrend.sumQuantity = sumQuantity;
+                            if (this.duTrend.sumQuantity > 15) {
+                                this.duTrend.activeCombo = '1thung';
+                            } else if (this.duTrend.sumQuantity > 11) {
+                                this.duTrend.activeCombo = '12goi';
+                            } else if (this.duTrend.sumQuantity > 5) {
+                                this.duTrend.activeCombo = '6goi';
+                            } else if (this.duTrend.sumQuantity < 6) {
+                                this.duTrend.activeCombo = '1goi';
+                            }
+                        }
+                        if (this.duTrend.sumQuantity > 0) {
+                            this.duTrend.subTotal = this.calculatePriceDuTrend(this.duTrend.sumQuantity)
+                        }
+                        this.calculateTotal()
+                    }
+                }
             }
         },
         async mounted() {
@@ -237,20 +435,30 @@
                 }).format(money);
             },
             increaseQuantity(id) {
-                this.menuList[id].quantity++;
+                const foundItem = this.menuFull.find(item => item.id === id);
+                foundItem.quantity++;
                 this.calculateTotal()
             },
             decreaseQuantity(id) {
-                if (this.menuList[id].quantity > 0) {
-                    this.menuList[id].quantity--;
+                const foundItem = this.menuFull.find(item => item.id === id);
+                if (foundItem.quantity > 0) {
+                    foundItem.quantity--;
                     this.calculateTotal()
                 }
             },
+            increaseQuantityMiliket(id) {
+                this.duTrend.listFlavor[id].quantity++;
+            },
+            decreaseQuantityMiliket(id) {
+                if (this.duTrend.listFlavor[id].quantity > 0)
+                    this.duTrend.listFlavor[id].quantity--;
+            },
             calculateTotal() {
                 let subTotal = 0;
-                for (const id in this.menuList) {
-                    subTotal += this.menuList[id].quantity * this.menuList[id].price;
+                for (const id in this.menuFull) {
+                    subTotal += this.menuFull[id].quantity * this.menuFull[id].price;
                 }
+                subTotal += this.duTrend.subTotal
                 this.subTotal = subTotal;
                 this.total = subTotal + this.feeShip - this.discount;
             },
@@ -263,6 +471,7 @@
             },
             async resetData() {
                 await this.getMenuList()
+                this.resetDuTrend()
                 this.showOrderRecent = false
                 this.orderRecent = []
                 this.loading = false;
@@ -286,12 +495,26 @@
                     const date = new Date().toLocaleDateString("vi-VN"); // Lấy ngày hiện tại
                     const items = [];
                     const total = this.formatMoney(this.total);
-                    this.menuList.forEach((item) => {
+                    this.menuFull.forEach((item) => {
                         if (item.quantity > 0) {
                             this.orderRecent.push(item);
                             items.push(`<b>${item.quantity}</b> | ${item.name}${this.spicyOptions[item.id] ? ' <u><i>(Cay nhiều)</i></u>' : ''} | ${this.formatMoney(item.quantity * item.price)}`)
                         }
                     })
+                    if(this.duTrend.subTotal > 0){
+                        let flavorOpts = ''
+                        let unMix = 0
+                        for (const key in this.duTrend.listFlavor) {
+                            if(this.duTrend.listFlavor[key].quantity > 0){
+                                flavorOpts += `[<b>${this.duTrend.listFlavor[key].quantity}</b>${this.duTrend.listFlavor[key].name}] `
+                                unMix+=this.duTrend.listFlavor[key].quantity
+                            }
+                        }
+                        if(unMix < this.duTrend.sumQuantity){
+                            flavorOpts += `[<b>${this.duTrend.sumQuantity - unMix}</b>Mix]`
+                        }
+                        items.push(`<b>${this.duTrend.sumQuantity}</b> | ${this.menuFull[0].name} (${flavorOpts}) | ${this.formatMoney(this.duTrend.subTotal)}`)
+                    }
                     if (items.length > 0) {
                         // Định dạng tin nhắn
                         const message = `🚀 ĐƠN MỚI ${date}\n`
@@ -329,6 +552,8 @@
             },
             async getMenuList() {
                 this.menuList = []
+                this.menuTopping = []
+                this.menuFull = []
                 this.loading = true
                 const sheetId = "1ZBRf2GWkUbx7I6AK7I9hSgJ0iA5WXx0eFDByRPkWdqo";
                 const apiKey = "AIzaSyCuxvzmaCbcCyieEXzkcOuZ0GBZ5aAIIhU";
@@ -337,14 +562,18 @@
                 await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}?key=${apiKey}`)
                     .then(response => response.json())
                     .then(data => {
-                        console.log(data)
                         const dataFromSheet = this.convertToJSON(data?.values)
                         dataFromSheet.forEach(item => {
                             item.quantity = 0;
                             if (item.spicy_opt === true) {
                                 this.spicyOptions[item.id] = false;
                             }
-                            this.menuList.push(item);
+                            this.menuFull.push(item)
+                            if (item.topping === true) {
+                                this.menuTopping.push(item);
+                            } else if (item.topping === false) {
+                                this.menuList.push(item);
+                            }
                         })
                         this.loading = false;
                         this.showArrow()
@@ -413,6 +642,48 @@
             containsXSS() {
                 const xssPattern = /(<\s*script)|(<\s*img)|(<\s*iframe)|(<\s*object)|(<\s*embed)|(<\s*link)|(<\s*meta)|(<\s*svg)|(<\s*style)|(<\s*body)|(<\s*title)|(<\s*form)|(<\s*input)|(<\s*textarea)|(<\s*button)|(<\s*iframe)|(<\s*video)|(<\s*audio)|(<\s*base)|(<\s*isindex)|(<\s*marquee)|(<\s*math)|(<\s*xml)|javascript:|data:text\/html|vbscript:|expression\(|on\w+\s*=|&#x?[0-9a-f]+;|%3C|%3E|%3D|document\.|window\.|alert\(|confirm\(|prompt\(/i;
                 return xssPattern.test(this.customerPhone) || xssPattern.test(this.customerName) || xssPattern.test(this.customerAddress);
+            },
+            calculatePriceDuTrend(quantity) {
+                const pricingTiers = [
+                    {qty: 16, price: this.menuList[0][this.duTrend.listCombo['1thung'].keyPrice]},
+                    {qty: 12, price: this.menuList[0][this.duTrend.listCombo['12goi'].keyPrice]},
+                    {qty: 6, price: this.menuList[0][this.duTrend.listCombo['6goi'].keyPrice]},
+                    {qty: 1, price: this.menuList[0][this.duTrend.listCombo['1goi'].keyPrice]}
+                ];
+                let totalCost = 0;
+                for (let tier of pricingTiers) {
+                    while (quantity >= tier.qty) {
+                        totalCost += Number(tier.price);
+                        quantity -= tier.qty;
+                    }
+                }
+                return totalCost;
+            },
+            resetDuTrend() {
+                this.duTrend = {
+                    activeCombo: '', // 1goi, 6goi, 12goi, 1thung
+                    activeFlavor: '', // mix, kimchi, carbonara, cari, chuacay, phomai, kebab,
+                    listCombo: {
+                        '1goi': {name: '1 Gói', keyPrice: 'price', quantity: 1},
+                        '6goi': {name: '6 Gói', keyPrice: 'price_cb1', quantity: 6},
+                        '12goi': {name: '12 Gói', keyPrice: 'price_cb2', quantity: 12},
+                        '1thung': {name: '1 Thùng', keyPrice: 'price_cb3', quantity: 16},
+                    },
+                    listFlavor: {
+                        'mix': {name: 'MIX VỊ', quantity: 0},
+                        'kimchi': {name: 'Kim chi', quantity: 0},
+                        'carbonara': {name: 'Carbonara', quantity: 0},
+                        'cari': {name: 'Cà ri', quantity: 0},
+                        'chuacay': {name: 'Chua cay', quantity: 0},
+                        'phomai': {name: 'Phô mai', quantity: 0},
+                        'kebab': {name: 'Kebab', quantity: 0},
+                    },
+                    subTotal: 0,
+                    sumQuantity: 0,
+                    subSumQuantity: 0,
+                    disableCombo: [],
+                }
+                this.calculateTotal()
             }
         },
     })
