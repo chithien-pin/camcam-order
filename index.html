@@ -220,12 +220,12 @@
                     </div>
                     <div class="flex items-center">
                         <button class="bg-gray-200 text-gray-600 rounded-full w-8 h-8 flex items-center justify-center"
-                                @click="decreaseQuantity(key)">
+                                @click="decreaseQuantity(item.id)">
                             -
                         </button>
                         <span class="mx-2">{{item.quantity}}</span>
                         <button class="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
-                                @click="increaseQuantity(key)">
+                                @click="increaseQuantity(item.id)">
                             +
                         </button>
                     </div>
@@ -259,12 +259,12 @@
                     </div>
                     <div class="flex items-center">
                         <button class="bg-gray-200 text-gray-600 rounded-full w-8 h-8 flex items-center justify-center"
-                                @click="decreaseQuantity(key)">
+                                @click="decreaseQuantity(item.id)">
                             -
                         </button>
                         <span class="mx-2">{{item.quantity}}</span>
                         <button class="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
-                                @click="increaseQuantity(key)">
+                                @click="increaseQuantity(item.id)">
                             +
                         </button>
                     </div>
@@ -315,6 +315,7 @@
         data() {
             return {
                 menuList: [],
+                menuFull: [],
                 menuTopping: [],
                 total: 0,
                 subTotal: 0,
@@ -411,12 +412,14 @@
                 }).format(money);
             },
             increaseQuantity(id) {
-                this.menuList[id].quantity++;
+                const foundItem = this.menuFull.find(item => item.id === id);
+                foundItem.quantity++;
                 this.calculateTotal()
             },
             decreaseQuantity(id) {
-                if (this.menuList[id].quantity > 0) {
-                    this.menuList[id].quantity--;
+                const foundItem = this.menuFull.find(item => item.id === id);
+                if (foundItem.quantity > 0) {
+                    foundItem.quantity--;
                     this.calculateTotal()
                 }
             },
@@ -429,8 +432,8 @@
             },
             calculateTotal() {
                 let subTotal = 0;
-                for (const id in this.menuList) {
-                    subTotal += this.menuList[id].quantity * this.menuList[id].price;
+                for (const id in this.menuFull) {
+                    subTotal += this.menuFull[id].quantity * this.menuFull[id].price;
                 }
                 subTotal += this.duTrend.subTotal
                 this.subTotal = subTotal;
@@ -523,6 +526,7 @@
             async getMenuList() {
                 this.menuList = []
                 this.menuTopping = []
+                this.menuFull = []
                 this.loading = true
                 const sheetId = "1ZBRf2GWkUbx7I6AK7I9hSgJ0iA5WXx0eFDByRPkWdqo";
                 const apiKey = "AIzaSyCuxvzmaCbcCyieEXzkcOuZ0GBZ5aAIIhU";
@@ -537,6 +541,7 @@
                             if (item.spicy_opt === true) {
                                 this.spicyOptions[item.id] = false;
                             }
+                            this.menuFull.push(item)
                             if (item.topping === true) {
                                 this.menuTopping.push(item);
                             } else if (item.topping === false) {
