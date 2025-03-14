@@ -470,7 +470,7 @@
                     const customerName = this.customerName;
                     const items = [];
                     const total = this.formatMoney(this.total);
-                    this.menuList.forEach((item) => {
+                    this.menuFull.forEach((item) => {
                         if (item.quantity > 0) {
                             this.orderRecent.push(item);
                             items.push(`<b>${item.quantity}</b> | ${item.name}${this.spicyOptions[item.id] ? ' <u><i>(Cay nhiều)</i></u>' : ''} | ${this.formatMoney(item.quantity * item.price)}`)
@@ -488,7 +488,7 @@
                         if(unMix < this.duTrend.sumQuantity){
                             flavorOpts += `[<b>${this.duTrend.sumQuantity - unMix}</b>Mix]`
                         }
-                        items.push(`<b>${this.duTrend.sumQuantity}</b> | ${this.menuList[0].name} (${flavorOpts}) | ${this.formatMoney(this.duTrend.subTotal)}`)
+                        items.push(`<b>${this.duTrend.sumQuantity}</b> | ${this.menuFull[0].name} (${flavorOpts}) | ${this.formatMoney(this.duTrend.subTotal)}`)
                     }
                     if (items.length > 0) {
                         // Định dạng tin nhắn
