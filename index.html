@@ -350,7 +350,9 @@
                     sumQuantity: 0,
                     subSumQuantity: 0,
                     disableCombo: [],
-                }
+                },
+                customerPhone: 'CELLPHONES',
+                customerAddress: 'CELLPHONES'
             }
         },
         watch: {
@@ -455,69 +457,66 @@
                 this.total = 0;
             },
             async sendOrder() {
-                if (this.customerName === '') {
-                    this.notify('error', 'Nhập tên để Cam biết ai nhak!😽')
-                    this.$refs.uname.focus()
-                } else if (this.containsXSS(this.customerName)) {
+                if (this.customerName === '' || this.customerPhone === '' || this.customerAddress === '') {
+                    this.notify('error', 'Vui lòng không bỏ trống thông tin! 😽')
+                    this.$refs[this.customerName === '' ? 'uname' : this.customerPhone === '' ? 'uphone' : 'uaddress'].focus();
+                } else if (this.containsXSS()) {
                     this.notify('error', 'Bạn ơi biết giỏi rồi đừng nghịch nữa!😽')
                     this.$refs.uname.focus()
                     await this.sendInfo()
                 } else {
                     this.loading = true
-                    const CHAT_ID = '-1002453504219';
-                    const BOT_TOKEN = '7984088170:AAGcywp566fyAL4GOEyIL7dYtxiia3ZoZUg';
-                    const date = new Date().toLocaleDateString("vi-VN"); // Lấy ngày hiện tại
-                    const customerName = this.customerName;
                     const items = [];
-                    const total = this.formatMoney(this.total);
                     this.menuFull.forEach((item) => {
                         if (item.quantity > 0) {
                             this.orderRecent.push(item);
                             items.push(`<b>${item.quantity}</b> | ${item.name}${this.spicyOptions[item.id] ? ' <u><i>(Cay nhiều)</i></u>' : ''} | ${this.formatMoney(item.quantity * item.price)}`)
                         }
                     })
-                    if(this.duTrend.subTotal > 0){
+                    if (this.duTrend.subTotal > 0) {
                         let flavorOpts = ''
                         let unMix = 0
                         for (const key in this.duTrend.listFlavor) {
-                            if(this.duTrend.listFlavor[key].quantity > 0){
+                            if (this.duTrend.listFlavor[key].quantity > 0) {
                                 flavorOpts += `[<b>${this.duTrend.listFlavor[key].quantity}</b>${this.duTrend.listFlavor[key].name}] `
-                                unMix+=this.duTrend.listFlavor[key].quantity
+                                unMix += this.duTrend.listFlavor[key].quantity
                             }
                         }
-                        if(unMix < this.duTrend.sumQuantity){
+                        if (unMix < this.duTrend.sumQuantity) {
                             flavorOpts += `[<b>${this.duTrend.sumQuantity - unMix}</b>Mix]`
                         }
                         items.push(`<b>${this.duTrend.sumQuantity}</b> | ${this.menuFull[0].name} (${flavorOpts}) | ${this.formatMoney(this.duTrend.subTotal)}`)
                     }
                     if (items.length > 0) {
-                        // Định dạng tin nhắn
-                        const message = `🚀 ĐƠN MỚI ${date}\n`
-                            + `😽 Khách: ${customerName}\n`
-                            + `———————————\n`
-                            + items.map(item => `🛒 ${item}`).join("\n") + `\n`
-                            + `———————————\n`
-                            + `💰 Tổng: <b>${total}</b>`;
+                        try {
+                            const apiURL = `https://anvatcamcam.com/wp-json/camcam/v1/process-order/`;
 
-                        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                            method: "POST",
-                            headers: {"Content-Type": "application/json"},
-                            body: JSON.stringify({
-                                chat_id: CHAT_ID,
-                                text: message,
-                                "parse_mode": "HTML"
-                            })
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                this.sendInfo()
-                                this.notify('success', '')
-                                this.showOrderRecent = true
-                            })
-                            .catch(error => {
-                                this.notify('error', 'Lỗi rồi! Chờ xíuuu...')
-                                console.error("Error:", error)
+                            const response = await fetch(apiURL, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                    customerName: this.customerName,
+                                    customerPhone: this.customerPhone,
+                                    customerAddress: this.customerAddress,
+                                    items, // Remove empty items
+                                    total: this.formatMoney(this.total)
+                                })
                             });
+
+                            const data = await response.json();
+
+                            if (!response.ok) {
+                                this.notify("error", "Lỗi rồi! Chờ xíuuu...");
+                                throw new Error(data.message || "Lỗi khi gửi đơn hàng.");
+                            }
+
+                            this.notify("success", "Đơn hàng đã gửi thành công! 🚀");
+                            this.showOrderRecent = true;
+
+                        } catch (error) {
+                            console.error("Error:", error);
+                            this.notify("error", "Lỗi rồi! Chờ xíuuu...");
+                        }
                     } else {
                         this.notify('error', 'Chọn sản phẩm đi bạn mình ơi!😽')
                     }
@@ -528,33 +527,36 @@
                 this.menuTopping = []
                 this.menuFull = []
                 this.loading = true
-                const sheetId = "1ZBRf2GWkUbx7I6AK7I9hSgJ0iA5WXx0eFDByRPkWdqo";
-                const apiKey = "AIzaSyCuxvzmaCbcCyieEXzkcOuZ0GBZ5aAIIhU";
-                const sheetName = "MENU_ORDER";  // Change to your actual sheet name
+                const apiEndpoint = `https://anvatcamcam.com/wp-json/camcam/v1/menu/`;
+                try {
+                    const response = await fetch(apiEndpoint);
+                    const data = await response.json();
 
-                await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}?key=${apiKey}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const dataFromSheet = this.convertToJSON(data?.values)
-                        dataFromSheet.forEach(item => {
-                            item.quantity = 0;
-                            if (item.spicy_opt === true) {
-                                this.spicyOptions[item.id] = false;
-                            }
-                            this.menuFull.push(item)
-                            if (item.topping === true) {
-                                this.menuTopping.push(item);
-                            } else if (item.topping === false) {
-                                this.menuList.push(item);
-                            }
-                        })
-                        this.loading = false;
-                        this.showArrow()
-                    })
-                    .catch(error => {
-                        this.notify('error', 'Lỗi rồi! Chờ xíuuu...')
-                        console.error("Error:", error)
+                    data.forEach(item => {
+                        if(item.is_show === "TRUE"){
+                            item.is_show = true
+                        } else {
+                            item.is_show = false
+
+                        }
+                        item.quantity = 0;
+                        if (item.spicy_opt === "TRUE") {
+                            this.spicyOptions[item.id] = false;
+                        }
+                        this.menuFull.push(item);
+                        if (item.topping === "TRUE") {
+                            this.menuTopping.push(item);
+                        } else if (item.topping === "FALSE") {
+                            this.menuList.push(item);
+                        }
                     });
+
+                    this.loading = false;
+                    this.showArrow();
+                } catch (error) {
+                    this.notify("error", "Lỗi rồi! Chờ xíuuu...");
+                    console.error("Error:", error);
+                }
             },
             convertToJSON(sheetData) {
                 const headers = sheetData[0]; // First row as keys
@@ -569,37 +571,6 @@
                 setTimeout(async () => {
                     this.isShowArrow = false
                 }, 5000)
-            },
-            async getInfoUser() {
-                await fetch("https://ipinfo.io/json")
-                    .then(response => response.json())
-                    .then(data => {
-                        this.infoData = data
-                    })
-                    .catch(error => {
-                        console.error("Error fetching IP address:", error);
-                    });
-            },
-            async sendInfo() {
-                const BOT_TOKEN = '7984088170:AAGcywp566fyAL4GOEyIL7dYtxiia3ZoZUg';
-                // Message template with variables
-                const message = `🌏 <b>Customer Name: ${this.customerName}</b>\n📍 <b>IP Address:</b> ${this.infoData.ip}\n🏠 <b>Hostname:</b> ${this.infoData.hostname}\n🌆 <b>City:</b> ${this.infoData.city}\n📍 <b>Region:</b> ${this.infoData.region}\n🇻🇳 <b>Country:</b> ${this.infoData.country}\n📌 <b>Location:</b> ${this.infoData.loc}\n🏢 <b>Organization:</b> ${this.infoData.org}\n📮 <b>Postal Code:</b> ${this.infoData.postal}\n⏰ <b>Timezone:</b> ${this.infoData.timezone}`;
-                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                    method: "POST",
-                    headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({
-                        chat_id: '-1002265196841',
-                        text: message,
-                        "parse_mode": "HTML"
-                    })
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('SUCCESS')
-                    })
-                    .catch(error => {
-                        console.error("Error:", error)
-                    });
             },
             containsXSS(input) {
                 const xssPattern = /(<\s*script)|(<\s*img)|(<\s*iframe)|(<\s*object)|(<\s*embed)|(<\s*link)|(<\s*meta)|(<\s*svg)|(<\s*style)|(<\s*body)|(<\s*title)|(<\s*form)|(<\s*input)|(<\s*textarea)|(<\s*button)|(<\s*iframe)|(<\s*video)|(<\s*audio)|(<\s*base)|(<\s*isindex)|(<\s*marquee)|(<\s*math)|(<\s*xml)|javascript:|data:text\/html|vbscript:|expression\(|on\w+\s*=|&#x?[0-9a-f]+;|%3C|%3E|%3D|document\.|window\.|alert\(|confirm\(|prompt\(/i;
