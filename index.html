@@ -280,14 +280,25 @@
             </div>
         </div>
         <div class="px-4 py-2 border-t border-gray-200">
-            <div class="flex w-full text-gray-600 mb-2">
-                <div class="group relative w-full">
-                    <label for="name"
-                           class="block w-full pb-1 text-sm font-medium text-gray-500 transition-all duration-200 ease-in-out group-focus-within:text-orange-400">Cho
-                        Cam xin tên:</label>
-                    <input id="name" ref="uname" v-model="customerName" type="text"
-                           class="peer h-10 w-full rounded-md bg-gray-50 px-4 outline-none drop-shadow-sm transition-all duration-200 ease-in-out focus:bg-white focus:ring-2 focus:ring-orange-400"
-                           placeholder="VD: CAM CAM NÈ"/>
+            <div class="relative w-full">
+                <div class="flex gap-[10px]">
+                    <div class="group relative w-full">
+                        <label for="uname"
+                               class="block w-full pb-1 text-sm font-medium text-gray-500 transition-all duration-200 ease-in-out group-focus-within:text-orange-400">Cho
+                            Cam xin tên:</label>
+                        <input id="uname" ref="uname" v-model="customerName" type="text" :disabled="showOrderRecent"
+                               class="peer h-10 w-full rounded-md bg-gray-50 px-4 outline-none drop-shadow-sm transition-all duration-200 ease-in-out focus:bg-white focus:ring-2 focus:ring-orange-400"
+                               placeholder="vd: CAM NÈ (Ít Cay)"/>
+                    </div>
+                    <div class="group relative w-full">
+                        <label for="uphone"
+                               class="block w-full pb-1 text-sm font-medium text-gray-500 transition-all duration-200 ease-in-out group-focus-within:text-orange-400">
+                            Số điện thoại:</label>
+                        <input id="uphone" ref="uphone" v-model="customerPhone" type="text" maxlength="10"
+                               :disabled="showOrderRecent"
+                               class="peer h-10 w-full rounded-md bg-gray-50 px-4 outline-none drop-shadow-sm transition-all duration-200 ease-in-out focus:bg-white focus:ring-2 focus:ring-orange-400"
+                               placeholder="vd: 0123456789"/>
+                    </div>
                 </div>
             </div>
         </div>
@@ -351,8 +362,8 @@
                     subSumQuantity: 0,
                     disableCombo: [],
                 },
-                customerPhone: 'CELLPHONES',
-                customerAddress: 'CELLPHONES'
+                customerPhone: '',
+                customerAddress: ''
             }
         },
         watch: {
@@ -460,6 +471,9 @@
                 if (this.customerName === '' || this.customerPhone === '' || this.customerAddress === '') {
                     this.notify('error', 'Vui lòng không bỏ trống thông tin! 😽')
                     this.$refs[this.customerName === '' ? 'uname' : this.customerPhone === '' ? 'uphone' : 'uaddress'].focus();
+                } else if (!this.isValidVietnamesePhone(this.customerPhone)) {
+                    this.notify('error', 'Vui lòng kiểm tra số điện thoại! 😽')
+                    this.$refs.uphone.focus();
                 } else if (this.containsXSS()) {
                     this.notify('error', 'Bạn ơi biết giỏi rồi đừng nghịch nữa!😽')
                     this.$refs.uname.focus()
