@@ -467,6 +467,10 @@
                 this.loading = false;
                 this.total = 0;
             },
+            isValidVietnamesePhone(phone) {
+                const regex = /^(03|05|07|08|09)\d{8}$/;
+                return regex.test(phone);
+            },
             async sendOrder() {
                 if (this.customerName === '' || this.customerPhone === '' || this.customerAddress === '') {
                     this.notify('error', 'Vui lòng không bỏ trống thông tin! 😽')
